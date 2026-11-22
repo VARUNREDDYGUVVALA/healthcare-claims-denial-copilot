@@ -48,7 +48,8 @@ def test_chronological_split_and_feature_contract(lines):
 
 @pytest.mark.parametrize(("day", "version"), [
     (date(2024, 12, 31), None), (date(2025, 1, 1), "v1"),
-    (date(2025, 6, 30), "v1"), (date(2025, 7, 1), "v2"), (date(2026, 1, 1), None),
+    (date(2025, 6, 30), "v1"), (date(2025, 7, 1), "v2"), (date(2026, 1, 1), "2026-v1"),
+    (date(2026, 3, 30), "2026-v1"), (date(2026, 4, 2), "2026-v2"), (date(2026, 7, 1), None),
 ])
 def test_policy_boundary(db, lines, day, version):
     excerpt = pipeline.policy(db, {**lines["CLM-GUIDE-1"], "service": day})

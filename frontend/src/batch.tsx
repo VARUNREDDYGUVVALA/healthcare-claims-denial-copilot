@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 
-export type BatchPolicy = { id: string; payer: string; procedure: string; starts: string; ends: string; excerpt: string }
+export type BatchPolicy = { id: string; payer: string; procedure: string; starts: string; ends: string; section: string; excerpt: string }
 type Evidence = 'yes' | 'no' | 'unknown'
 type ClaimInput = {
   id: string; payer: string; procedure: string; service: string
@@ -35,7 +35,7 @@ function evaluate(line: ClaimInput, policies: BatchPolicy[]): Result {
       review.push('Verify the authorization and its approval date.')
     }
     if (line.authorization === 'yes' && line.authorizationDate) {
-      if (policy.id === 'NS-IMG-v1') {
+      if (policy.id.endsWith('-v1')) {
         const deadline = new Date(line.service)
         let businessDays = 0
         while (businessDays < 2) {
@@ -44,7 +44,7 @@ function evaluate(line: ClaimInput, policies: BatchPolicy[]): Result {
         }
         if (line.authorizationDate > isoDate(deadline)) denied.push('Authorization was approved after the two-business-day window.')
       }
-      if (policy.id === 'NS-IMG-v2' && line.authorizationDate >= line.service) {
+      if (policy.id.endsWith('-v2') && line.authorizationDate >= line.service) {
         if (line.authorizationDate === line.service) review.push('Verify that authorization preceded the service time. Only dates were supplied.')
         else denied.push('Authorization was approved after the service date.')
       }

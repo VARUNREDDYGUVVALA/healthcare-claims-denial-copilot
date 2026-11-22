@@ -15,7 +15,7 @@ The project generates every member, claim, response, policy and historical revie
 
 ### Browser and API modes
 
-**Static demo.** React reads the generated `demo.json` and simulates the two payer responses. Decisions and revealed responses persist in local storage for the current browser and origin. The demo needs no backend or credentials. Clear the site's storage to reset it.
+**Static demo.** React reads the generated `demo.json` and simulates the guided payer responses. Decisions and revealed responses persist in local storage for the current browser and origin. The demo needs no backend or credentials. Clear the site's storage to reset it.
 
 **Live local API.** FastAPI opens the generated DuckDB file and loads the trained model for queue scoring. The API exposes ranked lines, existing responses, policy retrieval, and decisions persisted in DuckDB. The static React demo uses its exported snapshot. Browse or exercise the API at [local Swagger UI](http://127.0.0.1:8000/docs).
 
@@ -131,3 +131,9 @@ Choose **Batch claim review** to analyze 5,000 generated synthetic claim lines, 
 Each line ID must be unique. Dates use YYYY-MM-DD. `eligible`, `duplicate`, and `authorization` accept `yes`, `no`, and `unknown`, and default to `unknown` when omitted. These fields express the submitter’s evidence. A confirmed exception under a matched fictional policy can produce a denial recommendation. Missing evidence or a missing policy can require analyst review. The demo counts Monday through Friday as business days for Northstar imaging Version 1 and asks for human review when a Version 2 authorization date equals the service date.
 
 Upload processing and recommendations stay in the current browser view. Export results before leaving the view if you need a copy. The batch workflow uses policy and evidence rules. Its outputs are portfolio-demo recommendations for analyst review.
+
+### Ledger theme
+
+The main interface uses the Ledger theme. The queue capacity slider previews the cutoff for the current ranked list and compares model and rules denials caught at the selected daily capacity on the fixed holdout. Deferred rows free a queue slot for the current session. Manager charts use the same holdout capacity simulation. The review grid groups historical and browser-local reviews by claim submission date. The today marker appears on the daily columns when today is in the displayed data range.
+
+Open **Review March 2026 case** to see the January–June timeline. The treatment date of March 30 resolves to Version 1, even though submission and denial fall after the April 1 change. Scrubbing the date previews another policy while keeping the recorded dates, reason, and original policy citation intact. Compare policy versions below the ruler to see the changed wording.

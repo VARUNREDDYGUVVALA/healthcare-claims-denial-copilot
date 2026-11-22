@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "artifacts"
 CUTOFF = date(2025, 9, 1)
 CAPACITY = 3
-DEMO_CLAIMS = ("CLM-GUIDE", "CLM-EARLY")
+DEMO_CLAIMS = ("CLM-GUIDE", "CLM-EARLY", "CLM-LEDGER")
 POLICY_TERMS = {"AUTH": {"authorization", "preauthorization"},
                 "ELIG": {"coverage", "eligibility"}, "DUP": {"duplicate", "resubmitting"}}
 SUGGESTIONS = {"AUTH": "Verify authorization", "ELIG": "Verify coverage", "DUP": "Check for duplicate"}
@@ -139,10 +139,12 @@ def build():
                 month = by_month[str(line["submitted"])[:7]]
                 month["finalized"] += 1
                 month["denied"] += line["status"] == "denied"
+        holdout_ids = {line["id"] for line in holdout}
         ranked = sorted(zip(lines, scores, strict=True), key=lambda item: (-item[1], item[0]["id"]))
         demo = {
             "lines": [{**line, "description": PROCEDURES[line["procedure"]], "risk": round(float(score), 6),
-                       "staged": line["claim_id"] in DEMO_CLAIMS, "explanation": explain(db, line)} for line, score in ranked],
+                       "staged": line["claim_id"] in DEMO_CLAIMS, "rules_score": baseline(line),
+                       "holdout": line["id"] in holdout_ids, "explanation": explain(db, line)} for line, score in ranked],
             "metrics": metrics,
             "policies": data["policies"],
             "months": [{"month": month, **stats} for month, stats in sorted(by_month.items())],
