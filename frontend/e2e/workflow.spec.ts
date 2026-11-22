@@ -92,3 +92,44 @@ test('paginates the full queue and searches beyond the current page', async ({ p
   await page.getByLabel('Search claim lines').clear()
   await expect(pagination).toContainText('Lines 1–25')
 })
+
+test('transcribes a complete spoken question and lets the user submit it', async ({ page }) => {
+  await page.addInitScript(() => {
+    class MockRecognition {
+      onresult?: (event: {results: {transcript: string}[][]}) => void
+      onend?: () => void
+      start() {}
+      stop() {
+        this.onresult?.({results: [[{transcript: 'How much was billed'}], [{transcript: 'and who is the payer?'}]]})
+        this.onend?.()
+      }
+      abort() {}
+    }
+    Object.defineProperty(window, 'SpeechRecognition', {value: MockRecognition})
+  })
+  await page.goto('./')
+  await page.getByRole('button', {name: 'Start guided case'}).click()
+  await page.getByRole('button', {name: 'Use microphone'}).click()
+  await expect(page.getByText('Listening. Speak your question, then stop the microphone.')).toBeVisible()
+  await page.getByRole('button', {name: 'Stop microphone'}).click()
+  await expect(page.getByLabel('Your question')).toHaveValue('How much was billed and who is the payer?')
+  const answer = page.locator('[aria-live] .question-answer')
+  await expect(answer).toHaveCount(0)
+  await page.getByRole('button', {name: 'Ask', exact: true}).click()
+  await expect(answer).toContainText('$1,250')
+  await expect(answer).toContainText('Northstar Health')
+})
+
+test('keeps text questions available when speech recognition is unsupported', async ({ page }) => {
+  await page.addInitScript(() => {
+    for (const key of ['SpeechRecognition', 'webkitSpeechRecognition']) {
+      Object.defineProperty(window, key, {value: undefined})
+    }
+  })
+  await page.goto('./')
+  await page.getByRole('button', {name: 'Start guided case'}).click()
+  await expect(page.getByText('Voice input is unavailable in this browser.')).toBeVisible()
+  await page.getByLabel('Your question').fill('How much was billed?')
+  await page.getByRole('button', {name: 'Ask', exact: true}).click()
+  await expect(page.locator('[aria-live] .question-answer')).toContainText('$1,250')
+})

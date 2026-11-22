@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCombined, ChevronRight, CircleHelp, ClipboardList, FileCheck2, Files, FlaskConical, Layers3, ListFilter, Search, ShieldCheck } from 'lucide-react'
 import { BatchReview } from './batch'
 import type { BatchPolicy } from './batch'
+import { VoiceQuestion } from './voice-question'
 import './style.css'
 
 type Outcome = 'approved' | 'denied' | 'pending'
@@ -304,12 +305,13 @@ function ClaimQuestions({line, status, decisions}: {line: Line; status: string; 
     setAsked(next)
   }
   return <section className="panel section decision"><h2><CircleHelp size={19}/> Ask about this claim</h2>
-    <p>Type your own question or choose an example. Answers use the selected line’s synthetic records.</p>
+    <p>Type or speak your own question, or choose an example. Answers use the selected line’s synthetic records.</p>
     <div className="question-samples" aria-label="Sample questions">
       {sampleQuestions.map(sample => <button type="button" key={sample} onClick={() => ask(sample)}>{sample}</button>)}
     </div>
     <form onSubmit={event => {event.preventDefault(); ask(question)}}>
-      <label>Your question<input value={question} maxLength={240} onChange={event => setQuestion(event.target.value)} placeholder="Ask about this claim line"/></label>
+      <label>Your question<input value={question} maxLength={1000} onChange={event => setQuestion(event.target.value)} placeholder="Ask about this claim line"/></label>
+      <VoiceQuestion onTranscript={value => setQuestion(value.slice(0, 1000))}/>
       <button className="primary" type="submit" disabled={!question.trim()}>Ask</button>
     </form>
     {history.length > 0 && <details className="question-history"><summary>Earlier questions ({history.length})</summary>
