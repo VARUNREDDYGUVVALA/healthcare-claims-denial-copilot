@@ -64,6 +64,6 @@ jobs:
           PAGE_URL: ${{ steps.publish.outputs.page_url }}
         run: |
           curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/" -o /tmp/claims-index.html
-          rg -F '<title>Healthcare Claims Denial Copilot</title>' /tmp/claims-index.html
+          grep -F '<title>Healthcare Claims Denial Copilot</title>' /tmp/claims-index.html
           curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/demo.json" |
             python -c 'import json,sys; d=json.load(sys.stdin); assert any(x["id"]=="CLM-GUIDE-1" for x in d["lines"])'
