@@ -179,6 +179,7 @@ function Detail({line, status, decisions, back, reveal, save, earlyCase}: {
           </> : <p><Status value={status}/></p>}</>}
       </section>
     </div>
+    <ClaimQuestions line={line} status={status}/>
     {response && <section className="panel section decision"><h2><FileCheck2 size={19}/> Analyst decision</h2>
       <form onSubmit={e => {e.preventDefault(); save(action || response.action, note.trim()); setNote(''); setSaved(true)}}>
         <label>Decision<select value={action || response.action} onChange={e => {setAction(e.target.value); setSaved(false)}}>{actions.map(item => <option key={item}>{item}</option>)}</select></label>
@@ -188,6 +189,77 @@ function Detail({line, status, decisions, back, reveal, save, earlyCase}: {
       {decisions.length > 0 && <div className="history"><h3>Review history</h3>{decisions.map(item => <div key={item.id}><strong>{item.action}</strong>{item.note && <p>{item.note}</p>}</div>)}</div>}
     </section>}
   </>
+}
+
+const sampleQuestions = [
+  'What is the predicted denial risk?',
+  'Why was this line denied?',
+  'Which policy applied on the service date?',
+  'Is there an authorization record?',
+  'What should I do next?',
+]
+
+function answerClaimQuestion(question: string, line: Line, status: string): string {
+  const query = question.toLowerCase().trim()
+  const response = status === 'denied' ? line.explanation : null
+  const responseGap = status === 'pre-submission'
+    ? 'Simulate the payer response to see the recorded outcome and policy review.'
+    : `The line is ${status}. There is no recorded denial reason.`
+  const otherLine = query.match(/\bclm-[\w-]+/g)?.some(id => id !== line.id.toLowerCase() && id !== line.claim_id.toLowerCase())
+  if (otherLine) return 'Open the claim line you want to ask about, then ask your question there.'
+  if (/\b(policy|policies|requirement|requirements|rule|version)\b/.test(query)) {
+    if (!response) return responseGap
+    const policy = response.policy
+    if (!policy) return `No matching policy passage was found for ${line.payer}, ${line.procedure}, and ${prettyDate(line.service)}. The payer recorded “${response.reason}” (${response.code}).`
+    return `${policy.id}, ${policy.section}, applied on ${prettyDate(line.service)}. It was effective from ${prettyDate(policy.starts)} to before ${prettyDate(policy.ends)}. “${policy.excerpt}”`
+  }
+  if (/\b(next|recommend|recommendation|suggest|action|resubmit)\b|what should/.test(query)) {
+    return response ? `Suggested next step: ${response.action}.` : responseGap
+  }
+  if (/\b(risk|score|probability|flagged|chance)\b/.test(query)) {
+    return `The pre-submission model estimated a ${percent(line.risk, 1)} denial risk for ${line.id}. This is a prediction based on the billing extract.`
+  }
+  if (/\b(denied|denial|reason|response|outcome|status)\b/.test(query)) {
+    return response ? `The payer recorded “${response.reason}” (${response.code}) for ${line.id}.` : responseGap
+  }
+  if (/\b(auth|authorization|prior auth|eligibility|coverage|duplicate|duplicates)\b/.test(query)) {
+    const evidence: string[] = []
+    if (/\b(auth|authorization)\b/.test(query)) {
+      evidence.push(line.authorizations.length
+        ? `Matching authorization records: ${line.authorizations.map(record => record.id).join(', ')}.`
+        : 'The billing extract has no matching authorization record. Check the payer portal to verify.')
+    }
+    if (/\b(coverage|eligibility)\b/.test(query)) {
+      evidence.push(line.eligibility.length
+        ? `Matching eligibility records: ${line.eligibility.map(record => record.id).join(', ')}.`
+        : 'The billing extract has no matching eligibility record. Verify coverage with the payer.')
+    }
+    if (/\b(duplicates?)\b/.test(query)) {
+      evidence.push(line.duplicates?.length ? `Possible duplicate lines: ${line.duplicates.join(', ')}.` : 'The billing extract has no possible duplicate lines.')
+    }
+    return evidence.join(' ')
+  }
+  return 'I can answer questions about this line’s risk, payer response, policy, billing evidence, or suggested next step. Try one of the sample questions.'
+}
+
+function ClaimQuestions({line, status}: {line: Line; status: string}) {
+  const [question, setQuestion] = useState('')
+  const [asked, setAsked] = useState('')
+  function ask(value: string) {
+    setQuestion(value)
+    setAsked(value.trim())
+  }
+  return <section className="panel section decision"><h2><CircleHelp size={19}/> Ask about this claim</h2>
+    <p>Answers use the selected line’s synthetic records.</p>
+    <div className="question-samples" aria-label="Sample questions">
+      {sampleQuestions.map(sample => <button type="button" key={sample} onClick={() => ask(sample)}>{sample}</button>)}
+    </div>
+    <form onSubmit={event => {event.preventDefault(); ask(question)}}>
+      <label>Your question<input value={question} maxLength={240} onChange={event => setQuestion(event.target.value)} placeholder="Ask about this claim line"/></label>
+      <button className="primary" type="submit" disabled={!question.trim()}>Ask</button>
+    </form>
+    <div aria-live="polite">{asked && <div className="question-answer"><strong>{asked}</strong><p>{answerClaimQuestion(asked, line, status)}</p></div>}</div>
+  </section>
 }
 
 function Dashboard({demo, reviews}: {demo: Demo; reviews: number}) {

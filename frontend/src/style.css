@@ -158,3 +158,9 @@ form textarea { min-height: 70px; resize: vertical; }
   .queue-scroll td:nth-child(5) { grid-row: 3; grid-column: 2; }
   .queue-scroll td:nth-child(6) { grid-row: 1; grid-column: 2; justify-self: end; }
 }
+.question-samples { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0; }
+.question-samples button { background: #effaf6; color: #205e54; border: 1px solid #cae5df; border-radius: 16px; padding: 5px 9px; font-size: .75rem; }
+form input { width: 100%; border: 1px solid var(--border); border-radius: 7px; padding: 8px; color: #203147; }
+.primary:disabled { opacity: .55; cursor: default; }
+.question-answer { margin-top: 11px; padding: 11px; background: #f3f8f8; border-radius: 8px; font-size: .83rem; }
+.question-answer p { margin-top: 4px; }
