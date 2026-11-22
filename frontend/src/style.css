@@ -166,3 +166,11 @@ form input { width: 100%; border: 1px solid var(--border); border-radius: 7px; p
 .question-answer p { margin-top: 4px; }
 .question-history { margin-top: 11px; color: #205e54; font-size: .83rem; }
 .question-history summary { cursor: pointer; }
+.batch-upload { display: grid; gap: 6px; margin-top: 14px; font-size: .81rem; }
+.batch-upload input { max-width: 100%; }
+.batch-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.batch-form select, .batch-form input { min-width: 0; width: 100%; }
+.batch-results td { white-space: normal; min-width: 8rem; }
+.batch-results details { min-width: 8rem; }
+.text-button:disabled { opacity: .45; cursor: default; text-decoration: none; }
+.batch-status { margin-top: 12px; color: var(--muted); font-size: .85rem; }

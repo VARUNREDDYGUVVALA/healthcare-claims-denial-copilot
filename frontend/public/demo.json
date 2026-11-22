@@ -930,6 +930,35 @@
       "reviewed": 318
     }
   },
+  "policies": [
+    {
+      "id": "NS-IMG-v1",
+      "payer": "Northstar Health",
+      "procedure": "IMG-01",
+      "starts": "2025-01-01",
+      "ends": "2025-07-01",
+      "section": "Imaging § 4.2 · v1",
+      "excerpt": "Authorization may be obtained up to two business days after service."
+    },
+    {
+      "id": "NS-IMG-v2",
+      "payer": "Northstar Health",
+      "procedure": "IMG-01",
+      "starts": "2025-07-01",
+      "ends": "2026-01-01",
+      "section": "Imaging § 4.2 · v2",
+      "excerpt": "Authorization must be on file before the service. If it is missing, verify the payer portal before requesting reconsideration."
+    },
+    {
+      "id": "NS-VIS-v1",
+      "payer": "Northstar Health",
+      "procedure": "VIS-03",
+      "starts": "2025-01-01",
+      "ends": "2026-01-01",
+      "section": "Professional services § 2.1",
+      "excerpt": "Coverage must be active on the service date. Review prior submissions for the same service before resubmitting."
+    }
+  ],
   "months": [
     {
       "month": "2025-01",

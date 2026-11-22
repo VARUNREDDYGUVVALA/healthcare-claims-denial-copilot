@@ -154,6 +154,7 @@ def build():
             "lines": [{**line, "description": PROCEDURES[line["procedure"]], "risk": round(float(score), 6),
                        "staged": line["claim_id"] in DEMO_CLAIMS, "explanation": explain(db, line)} for line, score in samples],
             "metrics": metrics,
+            "policies": data["policies"],
             "months": [{"month": month, **stats} for month, stats in sorted(by_month.items())],
             "unmatched": rows(db, "SELECT r.* FROM responses r LEFT JOIN lines l ON l.id=r.line_id WHERE l.id IS NULL ORDER BY r.id"),
             "decisions": [decision for decision in historical if decision["line_id"] in sample_ids],

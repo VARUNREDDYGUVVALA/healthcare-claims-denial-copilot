@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCombined, ChevronRight, CircleHelp, ClipboardList, FileCheck2, Files, FlaskConical, Layers3, ListFilter, Search, ShieldCheck } from 'lucide-react'
+import { BatchReview } from './batch'
+import type { BatchPolicy } from './batch'
 import './style.css'
 
 type Outcome = 'approved' | 'denied' | 'pending'
@@ -17,12 +19,14 @@ type Line = {
 type Score = { pr_auc: number; precision_at_capacity: number }
 type Demo = {
   lines: Line[]; decisions: Decision[]
+  policies: BatchPolicy[]
   months: { month: string; finalized: number; denied: number; reviews: number }[]
   unmatched: { id: string; line_id: string; reason: string; status: string; received: string }[]
   metrics: { model: Score; rules: Score; capacity: number; cutoff: string; holdout_lines: number }
 }
 type Local = { revealed: string[]; decisions: Decision[] }
-type View = 'queue' | 'dashboard' | 'unmatched'
+const viewLabels = {queue: 'Claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review'}
+type View = keyof typeof viewLabels
 type QueueFilter = 'all' | 'pre-submission' | Outcome
 const key = 'claims-copilot-v1'
 const guide = 'CLM-GUIDE-1'
@@ -80,6 +84,7 @@ function App() {
       <div className="workspace"><div className="workspace-icon"><Layers3 size={16}/></div><div>Willow Creek Health<small>Fictional provider</small></div></div>
       <div className="nav-label">WORKSPACE</div>
       <nav aria-label="Main navigation">
+        <button className={view === 'batch' ? 'active' : ''} onClick={() => navigate('batch')}><FileCheck2 size={18}/> Batch claim review</button>
         <button className={view === 'queue' ? 'active' : ''} onClick={() => navigate('queue')}><ClipboardList size={18}/> Claim queue</button>
         <button className={view === 'dashboard' ? 'active' : ''} onClick={() => navigate('dashboard')}><ChartNoAxesCombined size={18}/> Manager dashboard</button>
         <button className={view === 'unmatched' ? 'active' : ''} onClick={() => navigate('unmatched')}><Files size={18}/> Unmatched responses</button>
@@ -87,7 +92,7 @@ function App() {
       <div className="sidebar-bottom"><FlaskConical size={17}/><div>Portfolio demo<small>Synthetic data only</small></div></div>
     </aside>
     <div className="content">
-      <header className="topbar"><span>Workspace <ChevronRight size={14}/> <strong>{view === 'queue' ? 'Claim queue' : view === 'dashboard' ? 'Manager dashboard' : 'Unmatched responses'}</strong></span><span className="simulation"><i/> Single-browser simulation</span></header>
+      <header className="topbar"><span>Workspace <ChevronRight size={14}/> <strong>{viewLabels[view]}</strong></span><span className="simulation"><i/> Single-browser simulation</span></header>
       <main>
         {storageError && <p className="notice" role="alert">Browser storage is unavailable. Changes will last until this page reloads.</p>}
         {!demo && <p role={error ? 'alert' : 'status'}>{error || 'Loading claims…'}</p>}
@@ -120,6 +125,7 @@ function App() {
               {!queue.length && <p className="empty">No claim lines match your filters.</p>}
             </section>
           </>)}
+        {demo && view === 'batch' && <BatchReview policies={demo.policies}/>}
         {demo && view === 'dashboard' && <Dashboard demo={demo} reviews={local.decisions.length}/>}
         {demo && view === 'unmatched' && <>
           <h1>Unmatched responses</h1><p className="subtitle">Payer responses whose claim line is absent from the billing extract.</p>

@@ -110,3 +110,24 @@ The workflow regenerates and checks the committed export, runs Python tests, typ
 ### Animated background theme
 
 Open [the standalone theme](https://varunreddyguvvala.github.io/healthcare-claims-denial-copilot/theme.html) or load `frontend/public/theme.html` directly in a browser. The three scenes use self-contained fictional examples and zero network requests. Use `#strip`, `#rail`, or `#form` to link to a specific scene.
+
+### Batch claim review
+
+Choose **Batch claim review** to analyze 5,000 generated synthetic claim lines, upload your own fictional records, or enter one line manually. Import up to 5,000 records across JSON files with a combined limit of 10 MB. A JSON file can contain one object or an array of objects. **Download sample JSON** generates the full example batch. PDF and image documents require separate extraction into the JSON format.
+
+```json
+{
+  "id": "TEST-0001",
+  "payer": "Northstar Health",
+  "procedure": "IMG-01",
+  "service": "2025-06-30",
+  "eligible": "yes",
+  "duplicate": "no",
+  "authorization": "yes",
+  "authorizationDate": "2025-07-01"
+}
+```
+
+Each line ID must be unique. Dates use YYYY-MM-DD. `eligible`, `duplicate`, and `authorization` accept `yes`, `no`, and `unknown`, and default to `unknown` when omitted. These fields express the submitter’s evidence. A confirmed exception under a matched fictional policy can produce a denial recommendation. Missing evidence or a missing policy can require analyst review. The demo counts Monday through Friday as business days for Northstar imaging Version 1 and asks for human review when a Version 2 authorization date equals the service date.
+
+Upload processing and recommendations stay in the current browser view. Export results before leaving the view if you need a copy. The batch workflow uses policy and evidence rules. Its outputs are portfolio-demo recommendations for analyst review.
