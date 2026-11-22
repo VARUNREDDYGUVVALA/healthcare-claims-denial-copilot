@@ -65,7 +65,7 @@ The chronological split uses submission dates. Training uses 2,674 finalized lin
 | Logistic regression | 0.7946 | 66.04% |
 | Rules baseline | 0.7126 | 63.52% |
 
-Precision pools up to three top-ranked holdout lines per submission day and breaks ties by stable ID. Each method selects 318 lines. The holdout and dashboard cover the generated population eligible for their respective calculations. The browser queue is a curated sample spanning payers, outcomes and risk scores.
+Precision pools up to three top-ranked holdout lines per submission day and breaks ties by stable ID. Each method selects 318 lines. The holdout and dashboard cover the generated population eligible for their respective calculations. The browser queue includes all generated claim lines, including the walkthrough claims. Search and status filters apply to the entire ranked queue, which displays 25 lines per page.
 
 Policy retrieval filters by payer, procedure and service date, then ranks sections by overlap with terms tied to the recorded reason. Each denial displays one suggested action. All explanations are deterministic and run locally.
 
@@ -81,7 +81,7 @@ python -m copilot.pipeline
 python -m pytest -q
 ```
 
-The pipeline writes `artifacts/claims.duckdb`, `artifacts/model.joblib`, `artifacts/metrics.json`, `artifacts/scored_sample.json`, and `frontend/public/demo.json`. Rebuild with the same seed to reproduce the snapshot. The DuckDB build also preserves decisions saved through the API.
+The pipeline writes `artifacts/claims.duckdb`, `artifacts/model.joblib`, `artifacts/metrics.json`, `artifacts/scored_claim_lines.json`, and `frontend/public/demo.json`. Rebuild with the same seed to reproduce the snapshot. The DuckDB build also preserves decisions saved through the API.
 
 ```sh
 python -m uvicorn copilot.api:app --host 127.0.0.1 --port 8000

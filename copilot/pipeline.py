@@ -140,29 +140,19 @@ def build():
                 month["finalized"] += 1
                 month["denied"] += line["status"] == "denied"
         ranked = sorted(zip(lines, scores, strict=True), key=lambda item: (-item[1], item[0]["id"]))
-        # Sample across payers and outcomes, retaining two complete walkthrough claims.
-        samples = [item for item in ranked if item[0]["claim_id"] in DEMO_CLAIMS]
-        for payer in ("Northstar Health", "Juniper Mutual"):
-            for status in ("denied", "approved", "pending"):
-                group = [item for item in ranked if item[0]["claim_id"] not in DEMO_CLAIMS
-                         and item[0]["payer"] == payer and item[0]["status"] == status]
-                if group:
-                    positions = {0, len(group) // 4, len(group) // 2, len(group) - 1}
-                    samples.extend(group[i] for i in sorted(positions))
-        sample_ids = {line["id"] for line, _ in samples}
         demo = {
             "lines": [{**line, "description": PROCEDURES[line["procedure"]], "risk": round(float(score), 6),
-                       "staged": line["claim_id"] in DEMO_CLAIMS, "explanation": explain(db, line)} for line, score in samples],
+                       "staged": line["claim_id"] in DEMO_CLAIMS, "explanation": explain(db, line)} for line, score in ranked],
             "metrics": metrics,
             "policies": data["policies"],
             "months": [{"month": month, **stats} for month, stats in sorted(by_month.items())],
             "unmatched": rows(db, "SELECT r.* FROM responses r LEFT JOIN lines l ON l.id=r.line_id WHERE l.id IS NULL ORDER BY r.id"),
-            "decisions": [decision for decision in historical if decision["line_id"] in sample_ids],
+            "decisions": historical,
         }
     joblib.dump(model, ARTIFACTS / "model.joblib")
     (ARTIFACTS / "metrics.json").write_text(json.dumps(metrics, indent=2) + "\n")
-    encoded = json.dumps(demo, default=serialize, ensure_ascii=False, indent=2) + "\n"
-    (ARTIFACTS / "scored_sample.json").write_text(encoded, encoding="utf-8")
+    encoded = json.dumps(demo, default=serialize, ensure_ascii=False, separators=(",", ":")) + "\n"
+    (ARTIFACTS / "scored_claim_lines.json").write_text(encoded, encoding="utf-8")
     (ROOT / "frontend/public/demo.json").write_text(encoded, encoding="utf-8")
     print(json.dumps(metrics, indent=2))
 

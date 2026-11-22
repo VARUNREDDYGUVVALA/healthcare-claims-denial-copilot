@@ -174,3 +174,5 @@ form input { width: 100%; border: 1px solid var(--border); border-radius: 7px; p
 .batch-results details { min-width: 8rem; }
 .text-button:disabled { opacity: .45; cursor: default; text-decoration: none; }
 .batch-status { margin-top: 12px; color: var(--muted); font-size: .85rem; }
+.queue-pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 14px; padding: 6px 15px; border-top: 1px solid var(--border); color: var(--muted); font-size: .78rem; }
+.queue-pagination > div { display: flex; gap: 12px; }

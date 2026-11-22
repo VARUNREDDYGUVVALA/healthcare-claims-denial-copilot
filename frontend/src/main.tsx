@@ -28,6 +28,8 @@ type Local = { revealed: string[]; decisions: Decision[] }
 const viewLabels = {queue: 'Claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review'}
 type View = keyof typeof viewLabels
 type QueueFilter = 'all' | 'pre-submission' | Outcome
+const queuePageSize = 25
+const formatCount = (value: number) => value.toLocaleString('en-US')
 const key = 'claims-copilot-v1'
 const guide = 'CLM-GUIDE-1'
 const early = 'CLM-EARLY-1'
@@ -53,6 +55,7 @@ function App() {
   const [view, setView] = useState<View>('queue')
   const [selected, setSelected] = useState('')
   const [search, setSearch] = useState('')
+  const [queuePage, setQueuePage] = useState(0)
   const [filter, setFilter] = useState<QueueFilter>('all')
   useEffect(() => {
     fetch(import.meta.env.BASE_URL + 'demo.json')
@@ -78,6 +81,10 @@ function App() {
   const queue = lines.filter(item => (filter === 'all' || status(item) === filter) &&
     [item.id, item.payer, item.procedure, item.description].join(' ').toLowerCase().includes(search.trim().toLowerCase()))
     .sort((a, b) => b.risk - a.risk || a.id.localeCompare(b.id))
+  const pageCount = Math.ceil(queue.length / queuePageSize)
+  const currentPage = Math.min(queuePage, Math.max(0, pageCount - 1))
+  const pageStart = currentPage * queuePageSize
+  const pageRows = queue.slice(pageStart, pageStart + queuePageSize)
   return <div className="shell">
     <aside className="sidebar">
       <div className="brand"><div className="brand-icon"><Activity size={23}/></div><div>Claims Copilot<small>REVENUE INTEGRITY</small></div></div>
@@ -114,14 +121,21 @@ function App() {
               <div className="guide-art" aria-hidden="true"><div className="art-card"><span/><span/><span/><span/><div><ShieldCheck size={36} strokeWidth={1.4}/></div></div></div>
             </section>
             <div className="stats">
-              <Stat icon={<ClipboardList size={19}/>} label="Claim lines" value={lines.length} detail="In this demo queue"/>
-              <Stat icon={<Activity size={19}/>} label="High-risk lines" value={lines.filter(item => item.risk >= .65).length} detail="Predicted risk ≥ 65%"/>
+              <Stat icon={<ClipboardList size={19}/>} label="Claim lines" value={formatCount(lines.length)} detail="In this demo queue"/>
+              <Stat icon={<Activity size={19}/>} label="High-risk lines" value={formatCount(lines.filter(item => item.risk >= .65).length)} detail="Predicted risk ≥ 65%"/>
               <Stat icon={<FileCheck2 size={19}/>} label="Reviews saved" value={local.decisions.length} detail="In this browser"/>
             </div>
             <section className="panel">
-              <div className="panel-heading"><div><h2>Ranked claim lines</h2><p>{queue.length} of {lines.length} lines</p></div><div className="filters"><label className="search"><Search size={16}/><input aria-label="Search claim lines" placeholder="Search claims" value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}/></label><label className="search"><ListFilter size={16}/><select aria-label="Filter by status" value={filter} onChange={e => setFilter(e.target.value as QueueFilter)}><option value="all">All statuses</option><option value="pre-submission">Pre-submission</option><option value="denied">Denied</option><option value="approved">Approved</option><option value="pending">Pending</option></select></label></div></div>
+              <div className="panel-heading"><div><h2>Ranked claim lines</h2><p>{formatCount(queue.length)} of {formatCount(lines.length)} lines</p></div><div className="filters"><label className="search"><Search size={16}/><input aria-label="Search claim lines" placeholder="Search claims" value={search} onChange={e => {setSearch(e.target.value); setQueuePage(0)}} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}/></label><label className="search"><ListFilter size={16}/><select aria-label="Filter by status" value={filter} onChange={e => {setFilter(e.target.value as QueueFilter); setQueuePage(0)}}><option value="all">All statuses</option><option value="pre-submission">Pre-submission</option><option value="denied">Denied</option><option value="approved">Approved</option><option value="pending">Pending</option></select></label></div></div>
+              {pageCount > 1 && <div className="queue-pagination" role="group" aria-label="Claim queue pagination">
+                <span aria-live="polite">Page {currentPage + 1} of {pageCount} · Lines {formatCount(pageStart + 1)}–{formatCount(pageStart + pageRows.length)}</span>
+                <div>
+                  <button className="text-button" disabled={currentPage === 0} onClick={() => setQueuePage(currentPage - 1)}>Previous page</button>
+                  <button className="text-button" disabled={currentPage + 1 === pageCount} onClick={() => setQueuePage(currentPage + 1)}>Next page</button>
+                </div>
+              </div>}
               <div className="scroll queue-scroll"><table><thead><tr><th>Claim line</th><th>Payer</th><th>Service date</th><th>Denial risk <ArrowDown size={13}/></th><th>Line status</th><th><span className="sr-only">Open line</span></th></tr></thead>
-              <tbody>{queue.map(item => <tr key={item.id}><td><button className="table-link" onClick={() => open(item.id)}>{item.id}</button><small>{item.description} · {item.procedure}</small></td><td>{item.payer}</td><td>{prettyDate(item.service)}</td><td><Risk risk={item.risk}/></td><td><Status value={status(item)}/></td><td><button className="icon-button" aria-label={'Open ' + item.id} onClick={() => open(item.id)}><ChevronRight size={17}/></button></td></tr>)}</tbody></table></div>
+              <tbody>{pageRows.map(item => <tr key={item.id}><td><button className="table-link" onClick={() => open(item.id)}>{item.id}</button><small>{item.description} · {item.procedure}</small></td><td>{item.payer}</td><td>{prettyDate(item.service)}</td><td><Risk risk={item.risk}/></td><td><Status value={status(item)}/></td><td><button className="icon-button" aria-label={'Open ' + item.id} onClick={() => open(item.id)}><ChevronRight size={17}/></button></td></tr>)}</tbody></table></div>
               {!queue.length && <p className="empty">No claim lines match your filters.</p>}
             </section>
           </>)}
