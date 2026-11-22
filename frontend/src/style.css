@@ -164,3 +164,5 @@ form input { width: 100%; border: 1px solid var(--border); border-radius: 7px; p
 .primary:disabled { opacity: .55; cursor: default; }
 .question-answer { margin-top: 11px; padding: 11px; background: #f3f8f8; border-radius: 8px; font-size: .83rem; }
 .question-answer p { margin-top: 4px; }
+.question-history { margin-top: 11px; color: #205e54; font-size: .83rem; }
+.question-history summary { cursor: pointer; }
