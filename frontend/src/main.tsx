@@ -1,0 +1,217 @@
+import { useEffect, useState } from 'react'
+import { createRoot } from 'react-dom/client'
+import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCombined, ChevronRight, CircleHelp, ClipboardList, FileCheck2, Files, FlaskConical, Layers3, ListFilter, Search, ShieldCheck } from 'lucide-react'
+import './style.css'
+
+type Outcome = 'approved' | 'denied' | 'pending'
+type Decision = { id: string; line_id: string; action: string; note: string }
+type Policy = { id: string; section: string; excerpt: string; starts: string; ends: string }
+type EvidenceRecord = { id: string; starts: string; ends: string; recorded: string }
+type Line = {
+  id: string; claim_id: string; description: string; procedure: string; payer: string; member: string
+  service: string; submitted: string; amount: number; risk: number; staged: boolean
+  status: Outcome; claim_status: string; received: string
+  eligibility: EvidenceRecord[]; authorizations: EvidenceRecord[]; duplicates: string[] | null
+  explanation: { reason: string; code: string; policy: Policy | null; action: string } | null
+}
+type Score = { pr_auc: number; precision_at_capacity: number }
+type Demo = {
+  lines: Line[]; decisions: Decision[]
+  months: { month: string; finalized: number; denied: number; reviews: number }[]
+  unmatched: { id: string; line_id: string; reason: string; status: string; received: string }[]
+  metrics: { model: Score; rules: Score; capacity: number; cutoff: string; holdout_lines: number }
+}
+type Local = { revealed: string[]; decisions: Decision[] }
+type View = 'queue' | 'dashboard' | 'unmatched'
+type QueueFilter = 'all' | 'pre-submission' | Outcome
+const key = 'claims-copilot-v1'
+const guide = 'CLM-GUIDE-1'
+const early = 'CLM-EARLY-1'
+const actions = ['Verify authorization', 'Verify coverage', 'Check for duplicate', 'Request payer clarification', 'Close review']
+const percent = (n: number, digits = 0) => new Intl.NumberFormat('en', {style:'percent', maximumFractionDigits: digits}).format(n)
+const currency = (n: number) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0}).format(n)
+const prettyDate = (value: string) => new Date(value + 'T00:00:00Z').toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric', timeZone:'UTC'})
+const reasonName: Record<string, string> = {AUTH:'Prior authorization required', ELIG:'Coverage inactive on service date', DUP:'Duplicate service'}
+
+function readLocal(): Local {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) ?? 'null') as Local | null
+    if (value && Array.isArray(value.revealed) && Array.isArray(value.decisions)) return value
+  } catch { /* Start fresh if storage is unavailable or unreadable. */ }
+  return {revealed: [], decisions: []}
+}
+
+function App() {
+  const [demo, setDemo] = useState<Demo>()
+  const [error, setError] = useState('')
+  const [storageError, setStorageError] = useState(false)
+  const [local, setLocal] = useState<Local>(readLocal)
+  const [view, setView] = useState<View>('queue')
+  const [selected, setSelected] = useState('')
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState<QueueFilter>('all')
+  useEffect(() => {
+    fetch(import.meta.env.BASE_URL + 'demo.json')
+      .then(response => { if (!response.ok) throw Error(); return response.json() })
+      .then(setDemo).catch(() => setError('Could not load the demo data. Reload the page to retry.'))
+  }, [])
+  function persist(next: Local) {
+    setLocal(next)
+    try { localStorage.setItem(key, JSON.stringify(next)); setStorageError(false) }
+    catch { setStorageError(true) }
+  }
+  function navigate(next: View) {
+    setView(next); setSelected('')
+    window.scrollTo(0, 0)
+  }
+  function open(id: string) {
+    setView('queue'); setSelected(id)
+    window.scrollTo(0, 0)
+  }
+  const status = (line: Line) => line.staged && !local.revealed.includes(line.claim_id) ? 'pre-submission' : line.status
+  const lines = demo?.lines ?? []
+  const line = lines.find(item => item.id === selected)
+  const queue = lines.filter(item => (filter === 'all' || status(item) === filter) &&
+    [item.id, item.payer, item.procedure, item.description].join(' ').toLowerCase().includes(search.trim().toLowerCase()))
+    .sort((a, b) => b.risk - a.risk || a.id.localeCompare(b.id))
+  return <div className="shell">
+    <aside className="sidebar">
+      <div className="brand"><div className="brand-icon"><Activity size={23}/></div><div>Claims Copilot<small>REVENUE INTEGRITY</small></div></div>
+      <div className="workspace"><div className="workspace-icon"><Layers3 size={16}/></div><div>Willow Creek Health<small>Fictional provider</small></div></div>
+      <div className="nav-label">WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <button className={view === 'queue' ? 'active' : ''} onClick={() => navigate('queue')}><ClipboardList size={18}/> Claim queue</button>
+        <button className={view === 'dashboard' ? 'active' : ''} onClick={() => navigate('dashboard')}><ChartNoAxesCombined size={18}/> Manager dashboard</button>
+        <button className={view === 'unmatched' ? 'active' : ''} onClick={() => navigate('unmatched')}><Files size={18}/> Unmatched responses</button>
+      </nav>
+      <div className="sidebar-bottom"><FlaskConical size={17}/><div>Portfolio demo<small>Synthetic data only</small></div></div>
+    </aside>
+    <div className="content">
+      <header className="topbar"><span>Workspace <ChevronRight size={14}/> <strong>{view === 'queue' ? 'Claim queue' : view === 'dashboard' ? 'Manager dashboard' : 'Unmatched responses'}</strong></span><span className="simulation"><i/> Single-browser simulation</span></header>
+      <main>
+        {storageError && <p className="notice" role="alert">Browser storage is unavailable. Changes will last until this page reloads.</p>}
+        {!demo && <p role={error ? 'alert' : 'status'}>{error || 'Loading claims…'}</p>}
+        {demo && view === 'queue' && (line ?
+          <Detail key={line.id} line={line} status={status(line)}
+            decisions={[...demo.decisions, ...local.decisions].filter(item => item.line_id === line.id)}
+            back={() => navigate('queue')} earlyCase={() => open(line.claim_id === 'CLM-EARLY' ? guide : early)}
+            reveal={() => persist({...local, revealed: [...local.revealed, line.claim_id]})}
+            save={(action, note) => persist({...local, decisions: [...local.decisions, {id: crypto.randomUUID(), line_id: line.id, action, note}]})}/> :
+          <>
+            <div className="page-heading"><div><h1>Claim queue</h1><p>Prioritize claim lines by denial risk and review payer responses.</p></div></div>
+            <section className="guide">
+              <div className="guide-content">
+                <div className="guide-label"><BookOpen size={15}/> GUIDED WALKTHROUGH</div>
+                <h2>Follow an imaging claim</h2>
+                <p>Start with a flagged MRI line, simulate the payer response, and review the policy in effect on the service date.</p>
+                <div className="guide-actions"><button className="primary" onClick={() => open(guide)}>Start guided case <ArrowRight size={16}/></button><button className="text-button" onClick={() => open(early)}>Open earlier policy case <ArrowUpRight size={15}/></button></div>
+              </div>
+              <div className="guide-art" aria-hidden="true"><div className="art-card"><span/><span/><span/><span/><div><ShieldCheck size={36} strokeWidth={1.4}/></div></div></div>
+            </section>
+            <div className="stats">
+              <Stat icon={<ClipboardList size={19}/>} label="Claim lines" value={lines.length} detail="In this demo queue"/>
+              <Stat icon={<Activity size={19}/>} label="High-risk lines" value={lines.filter(item => item.risk >= .65).length} detail="Predicted risk ≥ 65%"/>
+              <Stat icon={<FileCheck2 size={19}/>} label="Reviews saved" value={local.decisions.length} detail="In this browser"/>
+            </div>
+            <section className="panel">
+              <div className="panel-heading"><div><h2>Ranked claim lines</h2><p>{queue.length} of {lines.length} lines</p></div><div className="filters"><label className="search"><Search size={16}/><input aria-label="Search claim lines" placeholder="Search claims" value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}/></label><label className="search"><ListFilter size={16}/><select aria-label="Filter by status" value={filter} onChange={e => setFilter(e.target.value as QueueFilter)}><option value="all">All statuses</option><option value="pre-submission">Pre-submission</option><option value="denied">Denied</option><option value="approved">Approved</option><option value="pending">Pending</option></select></label></div></div>
+              <div className="scroll queue-scroll"><table><thead><tr><th>Claim line</th><th>Payer</th><th>Service date</th><th>Denial risk <ArrowDown size={13}/></th><th>Line status</th><th><span className="sr-only">Open line</span></th></tr></thead>
+              <tbody>{queue.map(item => <tr key={item.id}><td><button className="table-link" onClick={() => open(item.id)}>{item.id}</button><small>{item.description} · {item.procedure}</small></td><td>{item.payer}</td><td>{prettyDate(item.service)}</td><td><Risk risk={item.risk}/></td><td><Status value={status(item)}/></td><td><button className="icon-button" aria-label={'Open ' + item.id} onClick={() => open(item.id)}><ChevronRight size={17}/></button></td></tr>)}</tbody></table></div>
+              {!queue.length && <p className="empty">No claim lines match your filters.</p>}
+            </section>
+          </>)}
+        {demo && view === 'dashboard' && <Dashboard demo={demo} reviews={local.decisions.length}/>}
+        {demo && view === 'unmatched' && <>
+          <h1>Unmatched responses</h1><p className="subtitle">Payer responses whose claim line is absent from the billing extract.</p>
+          <div className="panel scroll"><table><thead><tr><th>Response ID</th><th>Referenced line</th><th>Received</th><th>Status</th><th>Recorded reason</th></tr></thead><tbody>
+            {demo.unmatched.map(item => <tr key={item.id}><td>{item.id}</td><td>{item.line_id}</td><td>{prettyDate(item.received)}</td><td><Status value={item.status}/></td><td>{reasonName[item.reason] || item.reason || '—'}</td></tr>)}
+          </tbody></table></div>
+        </>}
+      </main>
+    </div>
+  </div>
+}
+
+function Stat({icon, label, value, detail}: {icon: React.ReactNode; label: string; value: number | string; detail: string}) {
+  return <div className="stat"><div className="stat-icon">{icon}</div><div><span>{label}</span><strong>{value}</strong><small>{detail}</small></div></div>
+}
+function Status({value}: {value: string}) {
+  return <span className={'status ' + value.replaceAll(' ', '-')}><i/>{value}</span>
+}
+function Risk({risk}: {risk: number}) {
+  return <span className={'risk ' + (risk >= .65 ? 'high' : risk >= .35 ? 'medium' : 'low')}><span className="risk-track"><span style={{width:percent(risk)}}/></span>{percent(risk, 1)}</span>
+}
+
+function Records({records, fallback}: {records: EvidenceRecord[]; fallback: string}) {
+  if (!records.length) return fallback
+  return records.map(record => <div className="evidence-record" key={record.id}><strong>{record.id}</strong>
+    <small>{prettyDate(record.starts)} to before {prettyDate(record.ends)} · recorded {prettyDate(record.recorded)}</small>
+  </div>)
+}
+
+function Detail({line, status, decisions, back, reveal, save, earlyCase}: {
+  line: Line; status: string; decisions: Decision[]; back: () => void; reveal: () => void
+  save: (action: string, note: string) => void; earlyCase: () => void
+}) {
+  const response = status === 'denied' ? line.explanation : null
+  const [action, setAction] = useState('')
+  const [note, setNote] = useState('')
+  const [saved, setSaved] = useState(false)
+  return <>
+    <button className="text-button back" onClick={back}>← Back to claim queue</button>
+    <div className="page-heading"><div><h1>{line.id}</h1><p>{line.description} · {line.procedure} · {line.payer}</p></div><Status value={status}/></div>
+    {line.staged && <div className="notice guided-notice"><BookOpen size={18}/><div><strong>{line.claim_id === 'CLM-GUIDE' ? 'Guided imaging case' : 'Earlier policy case'}</strong><p>{status === 'pre-submission' ? (line.procedure === 'IMG-01' ? 'The MRI is flagged for review. Check the authorization evidence before simulating the payer response.' : 'Review the companion line before simulating the payer response.') : 'Compare the authorization policy in effect on each service date.'}</p></div><button className="text-button" onClick={earlyCase}>{line.claim_id === 'CLM-GUIDE' ? 'Open earlier policy case' : 'Open guided case'} <ArrowUpRight size={15}/></button></div>}
+    <div className="detail-grid">
+      <section className="panel section"><h2><ClipboardList size={19}/> Claim evidence</h2>
+        <dl><dt>Member</dt><dd>{line.member}</dd><dt>Service date</dt><dd>{prettyDate(line.service)}</dd><dt>Billed amount</dt><dd>{currency(line.amount)}</dd><dt>Denial risk</dt><dd><Risk risk={line.risk}/></dd>
+        <dt>Eligibility extract</dt><dd>{<Records records={line.eligibility} fallback="No matching record in extract"/>}</dd>
+        <dt>Authorization extract</dt><dd>{<Records records={line.authorizations} fallback={line.procedure === 'IMG-01' ? 'No matching record in extract' : 'Not tracked for this procedure'}/>}</dd>
+        <dt>Possible duplicate lines</dt><dd>{line.duplicates?.join(', ') || 'None in extract'}</dd>
+        {status !== 'pre-submission' && <><dt>Overall claim</dt><dd><Status value={line.claim_status}/></dd></>}</dl>
+      </section>
+      <section className="panel section"><h2><Activity size={19}/> Payer response</h2>
+        {status === 'pre-submission' ? <><p>No response has been recorded in this simulation.</p><button className="primary" onClick={reveal}>Simulate payer response <ArrowRight size={16}/></button></> :
+          <><p>Recorded {prettyDate(line.received)}</p>{response ? <>
+            <div className="reason"><strong>{response.reason}</strong><span>{response.code}</span></div>
+            <h3>Applicable payer policy</h3>
+            {response.policy ? <blockquote><strong>{response.policy.section}</strong><p>{response.policy.excerpt}</p><small>{response.policy.id} · Effective {prettyDate(response.policy.starts)} to before {prettyDate(response.policy.ends)}</small></blockquote> : <p className="notice"><CircleHelp size={15}/> No matching policy passage was found for this payer, procedure, and service date.</p>}
+            <h3>Suggested next step</h3><p>{response.action}</p>
+          </> : <p><Status value={status}/></p>}</>}
+      </section>
+    </div>
+    {response && <section className="panel section decision"><h2><FileCheck2 size={19}/> Analyst decision</h2>
+      <form onSubmit={e => {e.preventDefault(); save(action || response.action, note.trim()); setNote(''); setSaved(true)}}>
+        <label>Decision<select value={action || response.action} onChange={e => {setAction(e.target.value); setSaved(false)}}>{actions.map(item => <option key={item}>{item}</option>)}</select></label>
+        <label>Review note<textarea value={note} maxLength={2000} onChange={e => {setNote(e.target.value); setSaved(false)}} placeholder="Optional review notes"/></label>
+        <button className="primary" type="submit">Save decision</button>{saved && <span className="saved" role="status">Decision saved</span>}
+      </form>
+      {decisions.length > 0 && <div className="history"><h3>Review history</h3>{decisions.map(item => <div key={item.id}><strong>{item.action}</strong>{item.note && <p>{item.note}</p>}</div>)}</div>}
+    </section>}
+  </>
+}
+
+function Dashboard({demo, reviews}: {demo: Demo; reviews: number}) {
+  const finalized = demo.months.reduce((sum, item) => sum + item.finalized, 0)
+  const denied = demo.months.reduce((sum, item) => sum + item.denied, 0)
+  const historical = demo.months.reduce((sum, item) => sum + item.reviews, 0)
+  return <>
+    <h1>Manager dashboard</h1><p className="subtitle">Denial outcomes and review activity across the synthetic dataset.</p>
+    <div className="stats">
+      <Stat icon={<ClipboardList size={19}/>} label="Finalized lines" value={finalized.toLocaleString()} detail="Approved and denied"/>
+      <Stat icon={<Activity size={19}/>} label="Denial rate" value={percent(denied / finalized, 1)} detail={denied + ' denied lines'}/>
+      <Stat icon={<FileCheck2 size={19}/>} label="Review volume" value={historical + reviews} detail={historical + ' historical · ' + reviews + ' in this browser'}/>
+    </div>
+    <div className="detail-grid">
+      <section className="panel section"><h2>Monthly denial trends</h2><p>Finalized lines grouped by submission month</p>
+        <div className="trend" role="list">{demo.months.map(item => <div role="listitem" key={item.month}><span>{new Date(item.month + '-01T00:00:00Z').toLocaleDateString('en-US', {month:'short', timeZone:'UTC'})}</span><span className="trend-track"><i style={{width:percent(item.denied / item.finalized)}}/></span><strong>{percent(item.denied / item.finalized, 1)}</strong><small>{item.reviews} reviews</small></div>)}</div>
+      </section>
+      <section className="panel section"><h2>Risk model evaluation</h2><p>{demo.metrics.holdout_lines} finalized holdout lines from {prettyDate(demo.metrics.cutoff)} onward.</p>
+        <div className="scroll"><table><thead><tr><th>Method</th><th>PR-AUC</th><th>Precision @ {demo.metrics.capacity}/day</th></tr></thead><tbody>
+          <tr><td>Logistic regression</td><td>{demo.metrics.model.pr_auc.toFixed(4)}</td><td>{percent(demo.metrics.model.precision_at_capacity, 2)}</td></tr>
+          <tr><td>Rules baseline</td><td>{demo.metrics.rules.pr_auc.toFixed(4)}</td><td>{percent(demo.metrics.rules.precision_at_capacity, 2)}</td></tr>
+        </tbody></table></div>
+      </section>
+    </div>
+  </>
+}
+createRoot(document.getElementById('root')!).render(<App/>)

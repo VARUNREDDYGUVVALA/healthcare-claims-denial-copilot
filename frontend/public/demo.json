@@ -1,0 +1,1017 @@
+{
+  "lines": [
+    {
+      "id": "CLM-EARLY-1",
+      "claim_id": "CLM-EARLY",
+      "procedure": "IMG-01",
+      "service": "2025-06-30",
+      "amount": 1250,
+      "member": "Fictional member EARLY",
+      "payer": "Northstar Health",
+      "submitted": "2025-07-03",
+      "eligibility": [
+        {
+          "id": "E-EARLY",
+          "starts": "2025-05-31",
+          "ends": "2025-09-28",
+          "recorded": "2025-05-29"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "denied",
+      "reason": "AUTH",
+      "received": "2025-07-13",
+      "claim_status": "partially denied",
+      "description": "MRI, knee",
+      "risk": 0.68858,
+      "staged": true,
+      "explanation": {
+        "reason": "Prior authorization required",
+        "code": "AUTH",
+        "policy": {
+          "id": "NS-IMG-v1",
+          "payer": "Northstar Health",
+          "procedure": "IMG-01",
+          "starts": "2025-01-01",
+          "ends": "2025-07-01",
+          "section": "Imaging § 4.2 · v1",
+          "excerpt": "Authorization may be obtained up to two business days after service."
+        },
+        "action": "Verify authorization"
+      }
+    },
+    {
+      "id": "CLM-GUIDE-1",
+      "claim_id": "CLM-GUIDE",
+      "procedure": "IMG-01",
+      "service": "2025-09-16",
+      "amount": 1250,
+      "member": "Fictional member GUIDE",
+      "payer": "Northstar Health",
+      "submitted": "2025-09-19",
+      "eligibility": [
+        {
+          "id": "E-GUIDE",
+          "starts": "2025-08-17",
+          "ends": "2025-12-15",
+          "recorded": "2025-08-15"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "denied",
+      "reason": "AUTH",
+      "received": "2025-09-29",
+      "claim_status": "partially denied",
+      "description": "MRI, knee",
+      "risk": 0.68858,
+      "staged": true,
+      "explanation": {
+        "reason": "Prior authorization required",
+        "code": "AUTH",
+        "policy": {
+          "id": "NS-IMG-v2",
+          "payer": "Northstar Health",
+          "procedure": "IMG-01",
+          "starts": "2025-07-01",
+          "ends": "2026-01-01",
+          "section": "Imaging § 4.2 · v2",
+          "excerpt": "Authorization must be on file before the service. If it is missing, verify the payer portal before requesting reconsideration."
+        },
+        "action": "Verify authorization"
+      }
+    },
+    {
+      "id": "CLM-EARLY-2",
+      "claim_id": "CLM-EARLY",
+      "procedure": "LAB-02",
+      "service": "2025-06-30",
+      "amount": 145,
+      "member": "Fictional member EARLY",
+      "payer": "Northstar Health",
+      "submitted": "2025-07-03",
+      "eligibility": [
+        {
+          "id": "E-EARLY",
+          "starts": "2025-05-31",
+          "ends": "2025-09-28",
+          "recorded": "2025-05-29"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "approved",
+      "reason": "",
+      "received": "2025-07-13",
+      "claim_status": "partially denied",
+      "description": "Metabolic panel",
+      "risk": 0.044143,
+      "staged": true,
+      "explanation": null
+    },
+    {
+      "id": "CLM-GUIDE-2",
+      "claim_id": "CLM-GUIDE",
+      "procedure": "LAB-02",
+      "service": "2025-09-16",
+      "amount": 145,
+      "member": "Fictional member GUIDE",
+      "payer": "Northstar Health",
+      "submitted": "2025-09-19",
+      "eligibility": [
+        {
+          "id": "E-GUIDE",
+          "starts": "2025-08-17",
+          "ends": "2025-12-15",
+          "recorded": "2025-08-15"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "approved",
+      "reason": "",
+      "received": "2025-09-29",
+      "claim_status": "partially denied",
+      "description": "Metabolic panel",
+      "risk": 0.044143,
+      "staged": true,
+      "explanation": null
+    },
+    {
+      "id": "CLM-0484-2",
+      "claim_id": "CLM-0484",
+      "procedure": "IMG-01",
+      "service": "2025-02-24",
+      "amount": 1250,
+      "member": "Fictional member 0484",
+      "payer": "Northstar Health",
+      "submitted": "2025-02-27",
+      "eligibility": [],
+      "authorizations": [],
+      "duplicates": [
+        "CLM-0484-1"
+      ],
+      "status": "denied",
+      "reason": "ELIG",
+      "received": "2025-03-09",
+      "claim_status": "denied",
+      "description": "MRI, knee",
+      "risk": 0.999873,
+      "staged": false,
+      "explanation": {
+        "reason": "Coverage inactive on service date",
+        "code": "ELIG",
+        "policy": null,
+        "action": "Request payer clarification"
+      }
+    },
+    {
+      "id": "CLM-1068-2",
+      "claim_id": "CLM-1068",
+      "procedure": "LAB-02",
+      "service": "2025-04-30",
+      "amount": 145,
+      "member": "Fictional member 1068",
+      "payer": "Northstar Health",
+      "submitted": "2025-05-03",
+      "eligibility": [
+        {
+          "id": "E-1068",
+          "starts": "2025-03-31",
+          "ends": "2025-07-29",
+          "recorded": "2025-03-29"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": [
+        "CLM-1068-1"
+      ],
+      "status": "denied",
+      "reason": "DUP",
+      "received": "2025-05-13",
+      "claim_status": "partially denied",
+      "description": "Metabolic panel",
+      "risk": 0.812521,
+      "staged": false,
+      "explanation": {
+        "reason": "Duplicate service",
+        "code": "DUP",
+        "policy": null,
+        "action": "Request payer clarification"
+      }
+    },
+    {
+      "id": "CLM-1872-1",
+      "claim_id": "CLM-1872",
+      "procedure": "IMG-01",
+      "service": "2025-07-29",
+      "amount": 1250,
+      "member": "Fictional member 1872",
+      "payer": "Northstar Health",
+      "submitted": "2025-08-01",
+      "eligibility": [
+        {
+          "id": "E-1872",
+          "starts": "2025-06-29",
+          "ends": "2025-10-27",
+          "recorded": "2025-06-27"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "denied",
+      "reason": "AUTH",
+      "received": "2025-08-11",
+      "claim_status": "partially denied",
+      "description": "MRI, knee",
+      "risk": 0.68858,
+      "staged": false,
+      "explanation": {
+        "reason": "Prior authorization required",
+        "code": "AUTH",
+        "policy": {
+          "id": "NS-IMG-v2",
+          "payer": "Northstar Health",
+          "procedure": "IMG-01",
+          "starts": "2025-07-01",
+          "ends": "2026-01-01",
+          "section": "Imaging § 4.2 · v2",
+          "excerpt": "Authorization must be on file before the service. If it is missing, verify the payer portal before requesting reconsideration."
+        },
+        "action": "Verify authorization"
+      }
+    },
+    {
+      "id": "CLM-3044-1",
+      "claim_id": "CLM-3044",
+      "procedure": "VIS-03",
+      "service": "2025-12-06",
+      "amount": 220,
+      "member": "Fictional member 3044",
+      "payer": "Northstar Health",
+      "submitted": "2025-12-09",
+      "eligibility": [
+        {
+          "id": "E-3044",
+          "starts": "2025-11-06",
+          "ends": "2026-03-06",
+          "recorded": "2025-11-04"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "denied",
+      "reason": "ELIG",
+      "received": "2025-12-19",
+      "claim_status": "denied",
+      "description": "Office visit",
+      "risk": 0.042446,
+      "staged": false,
+      "explanation": {
+        "reason": "Coverage inactive on service date",
+        "code": "ELIG",
+        "policy": {
+          "id": "NS-VIS-v1",
+          "payer": "Northstar Health",
+          "procedure": "VIS-03",
+          "starts": "2025-01-01",
+          "ends": "2026-01-01",
+          "section": "Professional services § 2.1",
+          "excerpt": "Coverage must be active on the service date. Review prior submissions for the same service before resubmitting."
+        },
+        "action": "Verify coverage"
+      }
+    },
+    {
+      "id": "CLM-1929-1",
+      "claim_id": "CLM-1929",
+      "procedure": "IMG-01",
+      "service": "2025-08-04",
+      "amount": 1250,
+      "member": "Fictional member 1929",
+      "payer": "Northstar Health",
+      "submitted": "2025-08-07",
+      "eligibility": [],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "approved",
+      "reason": "",
+      "received": "2025-08-17",
+      "claim_status": "approved",
+      "description": "MRI, knee",
+      "risk": 0.988207,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-2102-1",
+      "claim_id": "CLM-2102",
+      "procedure": "IMG-01",
+      "service": "2025-08-23",
+      "amount": 1250,
+      "member": "Fictional member 2102",
+      "payer": "Northstar Health",
+      "submitted": "2025-08-26",
+      "eligibility": [
+        {
+          "id": "E-2102",
+          "starts": "2025-07-24",
+          "ends": "2025-11-21",
+          "recorded": "2025-07-22"
+        }
+      ],
+      "authorizations": [
+        {
+          "id": "A-2102-1",
+          "starts": "2025-08-20",
+          "ends": "2025-09-06",
+          "recorded": "2025-08-19"
+        }
+      ],
+      "duplicates": null,
+      "status": "approved",
+      "reason": "",
+      "received": "2025-09-05",
+      "claim_status": "approved",
+      "description": "MRI, knee",
+      "risk": 0.046553,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-1541-1",
+      "claim_id": "CLM-1541",
+      "procedure": "LAB-02",
+      "service": "2025-06-22",
+      "amount": 145,
+      "member": "Fictional member 1541",
+      "payer": "Northstar Health",
+      "submitted": "2025-06-25",
+      "eligibility": [
+        {
+          "id": "E-1541",
+          "starts": "2025-05-23",
+          "ends": "2025-09-20",
+          "recorded": "2025-05-21"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "approved",
+      "reason": "",
+      "received": "2025-07-05",
+      "claim_status": "partially denied",
+      "description": "Metabolic panel",
+      "risk": 0.044143,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-3095-1",
+      "claim_id": "CLM-3095",
+      "procedure": "VIS-03",
+      "service": "2025-12-11",
+      "amount": 220,
+      "member": "Fictional member 3095",
+      "payer": "Northstar Health",
+      "submitted": "2025-12-14",
+      "eligibility": [
+        {
+          "id": "E-3095",
+          "starts": "2025-11-11",
+          "ends": "2026-03-11",
+          "recorded": "2025-11-09"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "approved",
+      "reason": "",
+      "received": "2025-12-24",
+      "claim_status": "approved",
+      "description": "Office visit",
+      "risk": 0.042446,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-0098-2",
+      "claim_id": "CLM-0098",
+      "procedure": "IMG-01",
+      "service": "2025-01-12",
+      "amount": 1250,
+      "member": "Fictional member 0098",
+      "payer": "Northstar Health",
+      "submitted": "2025-01-15",
+      "eligibility": [
+        {
+          "id": "E-0098",
+          "starts": "2024-12-13",
+          "ends": "2025-04-12",
+          "recorded": "2024-12-11"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": [
+        "CLM-0098-1"
+      ],
+      "status": "pending",
+      "reason": "",
+      "received": "2025-01-25",
+      "claim_status": "pending",
+      "description": "MRI, knee",
+      "risk": 0.995204,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-1961-1",
+      "claim_id": "CLM-1961",
+      "procedure": "IMG-01",
+      "service": "2025-08-07",
+      "amount": 1250,
+      "member": "Fictional member 1961",
+      "payer": "Northstar Health",
+      "submitted": "2025-08-10",
+      "eligibility": [
+        {
+          "id": "E-1961",
+          "starts": "2025-07-08",
+          "ends": "2025-11-05",
+          "recorded": "2025-07-06"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "pending",
+      "reason": "",
+      "received": "2025-08-20",
+      "claim_status": "pending",
+      "description": "MRI, knee",
+      "risk": 0.68858,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-2011-1",
+      "claim_id": "CLM-2011",
+      "procedure": "IMG-01",
+      "service": "2025-08-13",
+      "amount": 1250,
+      "member": "Fictional member 2011",
+      "payer": "Northstar Health",
+      "submitted": "2025-08-16",
+      "eligibility": [
+        {
+          "id": "E-2011",
+          "starts": "2025-07-14",
+          "ends": "2025-11-11",
+          "recorded": "2025-07-12"
+        }
+      ],
+      "authorizations": [
+        {
+          "id": "A-2011-1",
+          "starts": "2025-08-10",
+          "ends": "2025-08-27",
+          "recorded": "2025-08-09"
+        }
+      ],
+      "duplicates": null,
+      "status": "pending",
+      "reason": "",
+      "received": "2025-08-26",
+      "claim_status": "pending",
+      "description": "MRI, knee",
+      "risk": 0.046553,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-2815-1",
+      "claim_id": "CLM-2815",
+      "procedure": "VIS-03",
+      "service": "2025-11-10",
+      "amount": 220,
+      "member": "Fictional member 2815",
+      "payer": "Northstar Health",
+      "submitted": "2025-11-13",
+      "eligibility": [
+        {
+          "id": "E-2815",
+          "starts": "2025-10-11",
+          "ends": "2026-02-08",
+          "recorded": "2025-10-09"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "pending",
+      "reason": "",
+      "received": "2025-11-23",
+      "claim_status": "pending",
+      "description": "Office visit",
+      "risk": 0.042446,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-0002-2",
+      "claim_id": "CLM-0002",
+      "procedure": "IMG-01",
+      "service": "2025-01-02",
+      "amount": 1250,
+      "member": "Fictional member 0002",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-01-05",
+      "eligibility": [],
+      "authorizations": [],
+      "duplicates": [
+        "CLM-0002-1"
+      ],
+      "status": "denied",
+      "reason": "ELIG",
+      "received": "2025-01-15",
+      "claim_status": "denied",
+      "description": "MRI, knee",
+      "risk": 0.999801,
+      "staged": false,
+      "explanation": {
+        "reason": "Coverage inactive on service date",
+        "code": "ELIG",
+        "policy": null,
+        "action": "Request payer clarification"
+      }
+    },
+    {
+      "id": "CLM-2521-2",
+      "claim_id": "CLM-2521",
+      "procedure": "IMG-01",
+      "service": "2025-10-09",
+      "amount": 1250,
+      "member": "Fictional member 2521",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-10-12",
+      "eligibility": [
+        {
+          "id": "E-2521",
+          "starts": "2025-09-09",
+          "ends": "2026-01-07",
+          "recorded": "2025-09-07"
+        }
+      ],
+      "authorizations": [
+        {
+          "id": "A-2521-1",
+          "starts": "2025-10-06",
+          "ends": "2025-10-23",
+          "recorded": "2025-10-05"
+        },
+        {
+          "id": "A-2521-2",
+          "starts": "2025-10-06",
+          "ends": "2025-10-23",
+          "recorded": "2025-10-05"
+        }
+      ],
+      "duplicates": [
+        "CLM-2521-1"
+      ],
+      "status": "denied",
+      "reason": "DUP",
+      "received": "2025-10-22",
+      "claim_status": "partially denied",
+      "description": "MRI, knee",
+      "risk": 0.745849,
+      "staged": false,
+      "explanation": {
+        "reason": "Duplicate service",
+        "code": "DUP",
+        "policy": null,
+        "action": "Request payer clarification"
+      }
+    },
+    {
+      "id": "CLM-1448-1",
+      "claim_id": "CLM-1448",
+      "procedure": "IMG-01",
+      "service": "2025-06-11",
+      "amount": 1250,
+      "member": "Fictional member 1448",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-06-14",
+      "eligibility": [
+        {
+          "id": "E-1448",
+          "starts": "2025-05-12",
+          "ends": "2025-09-09",
+          "recorded": "2025-05-10"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "denied",
+      "reason": "AUTH",
+      "received": "2025-06-24",
+      "claim_status": "denied",
+      "description": "MRI, knee",
+      "risk": 0.586116,
+      "staged": false,
+      "explanation": {
+        "reason": "Prior authorization required",
+        "code": "AUTH",
+        "policy": null,
+        "action": "Request payer clarification"
+      }
+    },
+    {
+      "id": "CLM-2702-1",
+      "claim_id": "CLM-2702",
+      "procedure": "VIS-03",
+      "service": "2025-10-29",
+      "amount": 220,
+      "member": "Fictional member 2702",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-11-01",
+      "eligibility": [
+        {
+          "id": "E-2702",
+          "starts": "2025-09-29",
+          "ends": "2026-01-27",
+          "recorded": "2025-09-27"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "denied",
+      "reason": "ELIG",
+      "received": "2025-11-11",
+      "claim_status": "partially denied",
+      "description": "Office visit",
+      "risk": 0.027606,
+      "staged": false,
+      "explanation": {
+        "reason": "Coverage inactive on service date",
+        "code": "ELIG",
+        "policy": null,
+        "action": "Request payer clarification"
+      }
+    },
+    {
+      "id": "CLM-1151-2",
+      "claim_id": "CLM-1151",
+      "procedure": "IMG-01",
+      "service": "2025-05-09",
+      "amount": 1250,
+      "member": "Fictional member 1151",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-05-12",
+      "eligibility": [
+        {
+          "id": "E-1151",
+          "starts": "2025-04-09",
+          "ends": "2025-08-07",
+          "recorded": "2025-04-07"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": [
+        "CLM-1151-1"
+      ],
+      "status": "approved",
+      "reason": "",
+      "received": "2025-05-22",
+      "claim_status": "approved",
+      "description": "MRI, knee",
+      "risk": 0.992532,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-1496-1",
+      "claim_id": "CLM-1496",
+      "procedure": "IMG-01",
+      "service": "2025-06-17",
+      "amount": 1250,
+      "member": "Fictional member 1496",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-06-20",
+      "eligibility": [
+        {
+          "id": "E-1496",
+          "starts": "2025-05-18",
+          "ends": "2025-09-15",
+          "recorded": "2025-05-16"
+        }
+      ],
+      "authorizations": [
+        {
+          "id": "A-1496-1",
+          "starts": "2025-06-14",
+          "ends": "2025-07-01",
+          "recorded": "2025-06-13"
+        }
+      ],
+      "duplicates": null,
+      "status": "approved",
+      "reason": "",
+      "received": "2025-06-30",
+      "claim_status": "approved",
+      "description": "MRI, knee",
+      "risk": 0.030323,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-1252-1",
+      "claim_id": "CLM-1252",
+      "procedure": "LAB-02",
+      "service": "2025-05-21",
+      "amount": 145,
+      "member": "Fictional member 1252",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-05-24",
+      "eligibility": [
+        {
+          "id": "E-1252",
+          "starts": "2025-04-21",
+          "ends": "2025-08-19",
+          "recorded": "2025-04-19"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "approved",
+      "reason": "",
+      "received": "2025-06-03",
+      "claim_status": "approved",
+      "description": "Metabolic panel",
+      "risk": 0.028728,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-3101-1",
+      "claim_id": "CLM-3101",
+      "procedure": "VIS-03",
+      "service": "2025-12-12",
+      "amount": 220,
+      "member": "Fictional member 3101",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-12-15",
+      "eligibility": [
+        {
+          "id": "E-3101",
+          "starts": "2025-11-12",
+          "ends": "2026-03-12",
+          "recorded": "2025-11-10"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "approved",
+      "reason": "",
+      "received": "2025-12-25",
+      "claim_status": "approved",
+      "description": "Office visit",
+      "risk": 0.027606,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-1952-2",
+      "claim_id": "CLM-1952",
+      "procedure": "IMG-01",
+      "service": "2025-08-06",
+      "amount": 1250,
+      "member": "Fictional member 1952",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-08-09",
+      "eligibility": [],
+      "authorizations": [
+        {
+          "id": "A-1952-1",
+          "starts": "2025-08-03",
+          "ends": "2025-08-20",
+          "recorded": "2025-08-02"
+        },
+        {
+          "id": "A-1952-2",
+          "starts": "2025-08-03",
+          "ends": "2025-08-20",
+          "recorded": "2025-08-02"
+        }
+      ],
+      "duplicates": [
+        "CLM-1952-1"
+      ],
+      "status": "pending",
+      "reason": "",
+      "received": "2025-08-19",
+      "claim_status": "pending",
+      "description": "MRI, knee",
+      "risk": 0.991089,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-2828-1",
+      "claim_id": "CLM-2828",
+      "procedure": "IMG-01",
+      "service": "2025-11-12",
+      "amount": 1250,
+      "member": "Fictional member 2828",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-11-15",
+      "eligibility": [
+        {
+          "id": "E-2828",
+          "starts": "2025-10-13",
+          "ends": "2026-02-10",
+          "recorded": "2025-10-11"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "pending",
+      "reason": "",
+      "received": "2025-11-25",
+      "claim_status": "pending",
+      "description": "MRI, knee",
+      "risk": 0.586116,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-1460-1",
+      "claim_id": "CLM-1460",
+      "procedure": "IMG-01",
+      "service": "2025-06-13",
+      "amount": 1250,
+      "member": "Fictional member 1460",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-06-16",
+      "eligibility": [
+        {
+          "id": "E-1460",
+          "starts": "2025-05-14",
+          "ends": "2025-09-11",
+          "recorded": "2025-05-12"
+        }
+      ],
+      "authorizations": [
+        {
+          "id": "A-1460-1",
+          "starts": "2025-06-10",
+          "ends": "2025-06-27",
+          "recorded": "2025-06-09"
+        },
+        {
+          "id": "A-1460-2",
+          "starts": "2025-06-10",
+          "ends": "2025-06-27",
+          "recorded": "2025-06-09"
+        }
+      ],
+      "duplicates": null,
+      "status": "pending",
+      "reason": "",
+      "received": "2025-06-26",
+      "claim_status": "pending",
+      "description": "MRI, knee",
+      "risk": 0.030323,
+      "staged": false,
+      "explanation": null
+    },
+    {
+      "id": "CLM-2705-1",
+      "claim_id": "CLM-2705",
+      "procedure": "VIS-03",
+      "service": "2025-10-29",
+      "amount": 220,
+      "member": "Fictional member 2705",
+      "payer": "Juniper Mutual",
+      "submitted": "2025-11-01",
+      "eligibility": [
+        {
+          "id": "E-2705",
+          "starts": "2025-09-29",
+          "ends": "2026-01-27",
+          "recorded": "2025-09-27"
+        }
+      ],
+      "authorizations": [],
+      "duplicates": null,
+      "status": "pending",
+      "reason": "",
+      "received": "2025-11-11",
+      "claim_status": "pending",
+      "description": "Office visit",
+      "risk": 0.027606,
+      "staged": false,
+      "explanation": null
+    }
+  ],
+  "metrics": {
+    "cutoff": "2025-09-01",
+    "capacity": 3,
+    "train_lines": 2674,
+    "holdout_lines": 1248,
+    "holdout_denials": 317,
+    "model": {
+      "pr_auc": 0.7946,
+      "precision_at_capacity": 0.6604,
+      "reviewed": 318
+    },
+    "rules": {
+      "pr_auc": 0.7126,
+      "precision_at_capacity": 0.6352,
+      "reviewed": 318
+    }
+  },
+  "months": [
+    {
+      "month": "2025-01",
+      "finalized": 313,
+      "denied": 94,
+      "reviews": 7
+    },
+    {
+      "month": "2025-02",
+      "finalized": 339,
+      "denied": 89,
+      "reviews": 5
+    },
+    {
+      "month": "2025-03",
+      "finalized": 347,
+      "denied": 94,
+      "reviews": 5
+    },
+    {
+      "month": "2025-04",
+      "finalized": 366,
+      "denied": 104,
+      "reviews": 5
+    },
+    {
+      "month": "2025-05",
+      "finalized": 365,
+      "denied": 84,
+      "reviews": 0
+    },
+    {
+      "month": "2025-06",
+      "finalized": 343,
+      "denied": 88,
+      "reviews": 0
+    },
+    {
+      "month": "2025-07",
+      "finalized": 366,
+      "denied": 94,
+      "reviews": 4
+    },
+    {
+      "month": "2025-08",
+      "finalized": 346,
+      "denied": 69,
+      "reviews": 1
+    },
+    {
+      "month": "2025-09",
+      "finalized": 364,
+      "denied": 88,
+      "reviews": 3
+    },
+    {
+      "month": "2025-10",
+      "finalized": 362,
+      "denied": 85,
+      "reviews": 4
+    },
+    {
+      "month": "2025-11",
+      "finalized": 340,
+      "denied": 93,
+      "reviews": 4
+    },
+    {
+      "month": "2025-12",
+      "finalized": 182,
+      "denied": 51,
+      "reviews": 2
+    }
+  ],
+  "unmatched": [
+    {
+      "id": "R-UNMATCHED",
+      "line_id": "CLM-NOT-IN-EXTRACT-1",
+      "status": "denied",
+      "reason": "ELIG",
+      "received": "2025-12-20"
+    }
+  ],
+  "decisions": []
+}
