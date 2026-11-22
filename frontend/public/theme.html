@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0B1B22">
+<link rel="icon" href="data:,">
+<title>Animated Background · Healthcare Claims Denial Copilot</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --page: #0b1b22;
+    --card: #12272f;
+    --raised: #1a3540;
+    --rule: #2a4752;
+    --text: #e6eef0;
+    --muted: #8fa7ae;
+    --coral: #ff6b85;
+    --pink: #ff8da1;
+    --teal: #3ccfb0;
+    --amber: #f5c84b;
+    --v1: #1d3a5c;
+    --v2: #14473b;
+    --cut: 58%;
+    font-family: system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--text); background: var(--page); }
+  .scene { position: fixed; inset: 0; overflow: hidden; opacity: 0; transition: opacity .8s ease; pointer-events: none; }
+  .scene.active { opacity: 1; }
+  .vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 44%, transparent 30%, #0b1b22a6 100%); }
+  .nav {
+    position: fixed; z-index: 1; left: 50%; bottom: max(16px, env(safe-area-inset-bottom));
+    transform: translateX(-50%); display: flex; align-items: center; gap: 3px;
+    padding: 5px; width: max-content; max-width: calc(100% - 20px);
+    border: 1px solid var(--rule); border-radius: 30px; background: var(--card);
+  }
+  .nav button { border: 0; border-radius: 20px; background: transparent; color: var(--muted); font: inherit; font-size: clamp(.68rem, 2.8vw, .8rem); padding: 7px 10px; cursor: pointer; }
+  .nav button[aria-pressed="true"] { background: var(--raised); color: var(--text); }
+  .nav button:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .strip-layer { position: absolute; inset: 0; overflow: hidden; }
+  .strip-layer.dim { opacity: .32; }
+  .strip-layer.bright { clip-path: inset(0 0 calc(100% - var(--cut)) 0); }
+  .belt { width: min(900px, 88%); margin-inline: auto; animation: scroll-up 26s linear infinite; }
+  .strip-row {
+    display: grid; grid-template-columns: 3.1rem 1.5fr 1fr 1.15fr 1fr; align-items: center;
+    gap: clamp(5px, 2vw, 22px); height: max(37px, 6.8vh); padding: 4px 0;
+  }
+  .risk-tab { align-self: stretch; display: grid; place-items: center; border-radius: 5px 0 0 5px; color: var(--page); background: var(--risk); font-size: .78rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .strip-cell { align-self: stretch; display: flex; align-items: center; background: var(--card); border: 1px solid var(--rule); border-radius: 4px; padding-inline: 8px; }
+  .ghost { display: block; width: var(--bar); height: 5px; border-radius: 7px; background: var(--rule); }
+  .cutline { position: absolute; inset-inline: 0; top: var(--cut); height: 0; border-top: 2px dashed var(--coral); display: flex; justify-content: center; animation: pulse 4s ease-in-out infinite; }
+  .cutline span { transform: translateY(-55%); align-self: start; padding: 5px 12px; border: 1px solid var(--coral); border-radius: 18px; background: var(--card); color: var(--pink); font-size: .72rem; white-space: nowrap; }
+  @keyframes scroll-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+  @keyframes pulse { 0%, 100% { opacity: .65; } 50% { opacity: 1; } }
+
+  .rail { display: grid; place-items: center; padding: 0 14px 8vh; }
+  .rail svg { width: min(100%, 960px); max-height: 78vh; overflow: visible; }
+  .rail text { fill: var(--muted); font-size: 14px; }
+  .rail .version-label { fill: var(--text); font-size: 15px; }
+  .rail .service-label, .rail .caption { fill: var(--pink); }
+  .rail .caption { font-size: 17px; }
+  .rail .tick { stroke: var(--rule); }
+  .band { transform-box: fill-box; transform-origin: left center; }
+  .active .band { animation: grow 12s ease-in-out infinite; }
+  .active .pin { animation: var(--entry) 12s ease-in-out infinite; }
+  .arc { fill: none; stroke: var(--coral); stroke-width: 2.5; stroke-dasharray: 6 5; }
+  .active .arc-progress { animation: draw 12s linear infinite; }
+  .active .caption { animation: reveal 12s ease-in-out infinite; }
+  @keyframes grow { 0% { transform: scaleX(0); } 15%, 93% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1); opacity: 0; } }
+  @keyframes pin-0 { 0%, 16% { transform: translateY(-18px); opacity: 0; } 23%, 93% { transform: translateY(0); opacity: 1; } 100% { opacity: 0; } }
+  @keyframes pin-1 { 0%, 23% { transform: translateY(-18px); opacity: 0; } 30%, 93% { transform: translateY(0); opacity: 1; } 100% { opacity: 0; } }
+  @keyframes pin-2 { 0%, 30% { transform: translateY(-18px); opacity: 0; } 37%, 93% { transform: translateY(0); opacity: 1; } 100% { opacity: 0; } }
+  @keyframes pin-3 { 0%, 37% { transform: translateY(-18px); opacity: 0; } 44%, 93% { transform: translateY(0); opacity: 1; } 100% { opacity: 0; } }
+  @keyframes draw { 0%, 54% { stroke-dashoffset: 1; opacity: 1; } 69%, 93% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+  @keyframes reveal { 0%, 70%, 100% { opacity: 0; } 77%, 93% { opacity: 1; } }
+
+  .form { display: grid; place-items: center; padding: 16px 16px 8vh; }
+  .form-wrap { position: relative; width: min(100%, 890px); }
+  .fields { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  .field { min-height: clamp(42px, 10vw, 84px); border: 1px solid var(--coral); border-radius: 5px; padding: 8px; background: var(--card); opacity: .5; }
+  .field span:first-child { display: block; margin-bottom: 8px; color: var(--text); font-size: .66rem; }
+  .field .ghost { background: var(--muted); }
+  .active .field { animation: shimmer var(--duration) ease-in-out var(--delay) infinite alternate; }
+  .stamp {
+    position: absolute; inset: 50% auto auto 50%; padding: .2em .43em;
+    transform: translate(-50%, -50%) rotate(-11deg); color: var(--coral);
+    border: .075em double currentColor; border-radius: .11em; font-size: clamp(1.85rem, 7vw, 4rem);
+    font-weight: 900; letter-spacing: .08em; opacity: .78;
+  }
+  .active .stamp { animation: stamp 9s ease-out infinite; }
+  @keyframes shimmer { from { opacity: .22; } to { opacity: .50; } }
+  @keyframes stamp {
+    0%, 16% { transform: translate(-50%, -50%) rotate(-11deg) scale(1.9); opacity: 0; }
+    21%, 64% { transform: translate(-50%, -50%) rotate(-11deg) scale(1); opacity: .78; }
+    82%, 100% { transform: translate(-50%, -50%) rotate(-11deg) scale(1); opacity: 0; }
+  }
+
+  @media (max-width: 719px) {
+    .strip-row { grid-template-columns: 2.5rem 1.4fr 1fr; }
+    .strip-cell:nth-last-child(-n + 2) { display: none; }
+    .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .field { min-height: clamp(35px, 7vh, 59px); padding: 5px 7px; }
+    .field span:first-child { margin-bottom: 5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<main aria-label="Healthcare Claims Denial Copilot animated background">
+  <section class="scene" id="strip" aria-label="Strip board" aria-hidden="true">
+    <div class="strip-layer dim" aria-hidden="true"></div>
+    <div class="strip-layer bright" aria-hidden="true"></div>
+    <div class="cutline"><span>Capacity: 12 per day</span></div>
+  </section>
+  <section class="scene rail" id="rail" aria-label="Policy time rail" aria-hidden="true">
+    <svg viewBox="0 0 660 310" role="img" aria-labelledby="rail-title rail-description">
+      <title id="rail-title">January through June policy timeline</title>
+      <desc id="rail-description">Authorization approved January 9. Service occurred March 30 in Version 1. The claim was submitted April 2 and the denial recorded April 13, during Version 2.</desc>
+      <defs>
+        <mask id="arc-mask">
+          <path class="arc-progress" d="M0 0" pathLength="1" stroke="white" stroke-width="9" stroke-dasharray="1" fill="none"/>
+        </mask>
+        <marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+          <path d="M0 0L6 3L0 6" stroke="#ff6b85" fill="none"/>
+        </marker>
+      </defs>
+      <g id="bands"></g>
+      <g id="ticks"></g>
+      <path class="arc" d="M0 0" mask="url(#arc-mask)" marker-end="url(#arrow)"/>
+      <g id="pins"></g>
+      <text class="caption" x="330" y="294" text-anchor="middle">the service date picks the policy version</text>
+    </svg>
+  </section>
+  <section class="scene form" id="form" aria-label="Claim form" aria-hidden="true">
+    <div class="form-wrap"><div class="fields"></div><div class="stamp">REVIEWED</div></div>
+  </section>
+</main>
+<div class="vignette" aria-hidden="true"></div>
+<nav class="nav" aria-label="Background scenes">
+  <button type="button" data-scene="strip" aria-controls="strip" aria-pressed="false">Strip board</button>
+  <button type="button" data-scene="rail" aria-controls="rail" aria-pressed="false">Policy time rail</button>
+  <button type="button" data-scene="form" aria-controls="form" aria-pressed="false">Claim form</button>
+</nav>
+<script>
+  // One seed drives ghost bars and form shimmer, with no network dependencies.
+  let seed = 181;
+  const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296);
+  const scores = [98, 96, 94, 91, 88, 84, 80, 76, 72, 68, 63, 57, 52, 46, 40, 33, 26, 18, 11];
+  const strips = scores.map(score => {
+    const color = score >= 85 ? '#f45876' : score >= 68 ? '#e99059' : score >= 46 ? '#c7a448' : '#4f91af';
+    const cells = Array.from({ length: 4 }, () => '<span class="strip-cell"><i class="ghost" style="--bar:' + (36 + Math.round(random() * 61)) + '%"></i></span>').join('');
+    return '<div class="strip-row" style="--risk:' + color + '"><span class="risk-tab">' + score + '</span>' + cells + '</div>';
+  }).join('');
+  for (const layer of document.querySelectorAll('.strip-layer')) {
+    layer.innerHTML = '<div class="belt">' + strips + strips + '</div>';
+  }
+
+  // Day zero is January 1 in a non-leap year. July 1 is the exclusive right edge.
+  const dayX = day => 24 + 612 * day / 181;
+  const months = [[0, 'Jan'], [31, 'Feb'], [59, 'Mar'], [90, 'Apr'], [120, 'May'], [151, 'Jun']];
+  const versions = [[0, 90, 'Version 1', 'var(--v1)'], [90, 181, 'Version 2', 'var(--v2)']];
+  document.querySelector('#bands').innerHTML = versions.map(([start, end, label, fill]) =>
+    '<g class="band"><rect y="142" height="35" x="' + dayX(start) + '" width="' + (dayX(end) - dayX(start)) +
+    '" fill="' + fill + '"/><text class="version-label" y="165" x="' + dayX((start + end) / 2) +
+    '" text-anchor="middle">' + label + '</text></g>').join('');
+  const lineAt = (day, from, to, width) => '<line class="tick" x1="' + dayX(day) + '" x2="' + dayX(day) +
+    '" y1="' + from + '" y2="' + to + '" stroke-width="' + width + '"/>';
+  document.querySelector('#ticks').innerHTML =
+    Array.from({ length: 26 }, (_, index) => lineAt(index * 7, 177, 184, 1)).join('') +
+    months.map(([day, name]) => lineAt(day, 177, 195, 2) + '<text x="' + (dayX(day) + 4) + '" y="211">' + name + '</text>').join('') +
+    lineAt(181, 177, 195, 2);
+  const events = [
+    { day: 8, label: '9 Jan · authorization approved', y: 110, anchor: 'start', dx: 8, color: 'var(--teal)' },
+    { day: 88, label: '30 Mar · service date', y: 124, anchor: 'end', dx: -10, color: 'var(--coral)', service: true },
+    { day: 91, label: '2 Apr · submitted', y: 234, anchor: 'start', dx: 6, color: 'var(--teal)' },
+    { day: 102, label: '13 Apr · denial recorded', y: 261, anchor: 'start', dx: 8, color: 'var(--coral)' },
+  ];
+  document.querySelector('#pins').innerHTML = events.map(({ day, label, y, anchor, dx, color, service }, index) => {
+    const x = dayX(day);
+    return '<g class="pin" style="--entry:pin-' + index + '"><line x1="' + x + '" x2="' + x + '" y1="' +
+      (y > 177 ? 177 : y + 6) + '" y2="' + (y > 177 ? y - 4 : 142) + '" stroke="' + color + '" stroke-width="' +
+      (service ? 5 : 2) + '"/><circle cx="' + x + '" cy="' + (y > 177 ? 177 : 142) + '" r="' +
+      (service ? 5 : 3) + '" fill="' + color + '"/><text class="' + (service ? 'service-label' : '') + '" x="' +
+      (x + dx) + '" y="' + y + '" text-anchor="' + anchor + '">' + label + '</text></g>';
+  }).join('');
+  const arc = 'M' + dayX(88) + ' 123 C ' + dayX(90) + ' 37, ' + dayX(44) + ' 31, ' + dayX(45) + ' 137';
+  for (const path of document.querySelectorAll('.arc, .arc-progress')) path.setAttribute('d', arc);
+
+  const fields = ['Payer reason', 'Member', 'Service date', 'Procedure', 'Units', 'Billed', 'Authorization', 'Eligibility', 'Policy version', 'Submitted', 'Response', 'Decision'];
+  document.querySelector('.fields').innerHTML = fields.map(label => '<div class="field" style="--delay:-' +
+    (random() * 5).toFixed(2) + 's;--duration:' + (2.4 + random() * 2.1).toFixed(2) + 's;--bar:' +
+    (36 + Math.round(random() * 56)) + '%"><span>' + label + '</span><i class="ghost"></i></div>').join('');
+
+  const buttons = [...document.querySelectorAll('.nav button')];
+  const order = buttons.map(button => button.dataset.scene);
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  let active;
+  let timer;
+  let manual = false;
+  function show(scene) {
+    active = order.includes(scene) ? scene : 'strip';
+    for (const id of order) {
+      const selected = id === active;
+      const section = document.getElementById(id);
+      section.classList.toggle('active', selected);
+      section.setAttribute('aria-hidden', String(!selected));
+    }
+    for (const button of buttons) button.setAttribute('aria-pressed', String(button.dataset.scene === active));
+  }
+  function schedule() {
+    clearInterval(timer);
+    if (!manual && !motion.matches) {
+      timer = setInterval(() => show(order[(order.indexOf(active) + 1) % order.length]), 14000);
+    }
+  }
+  function readHash() {
+    const scene = location.hash.slice(1);
+    show(scene);
+    schedule();
+  }
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      manual = true;
+      schedule();
+      show(button.dataset.scene);
+      location.hash = button.dataset.scene;
+    });
+  }
+  addEventListener('hashchange', readHash);
+  motion.addEventListener('change', schedule);
+  readHash();
+</script>
+</body>
+</html>
