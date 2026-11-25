@@ -197,3 +197,17 @@ test('local investigation displays verified evidence and submits a supervisor re
   await investigation.getByRole('button', {name: 'Record supervisor decision'}).click()
   await expect(investigation).toContainText('review approved · supervisor')
 })
+
+test('Model governance separates validation recommendations from the frozen-test release decision', async ({ page }) => {
+  await page.goto('./')
+  await page.getByRole('button', {name: 'Manager dashboard'}).click()
+  const governance = page.getByRole('region', {name: 'Model governance'})
+  await expect(governance.getByText('Validation recommendation')).toBeVisible()
+  await expect(governance.getByText(/Frozen-test decision/)).toBeVisible()
+  await expect(governance.getByRole('row', {name: /Gradient boosting/})).toContainText('0.7727')
+  await governance.getByLabel('Evaluation split').selectOption('validation')
+  await expect(governance.getByRole('row', {name: /Gradient boosting/})).toContainText('0.7885')
+  await governance.getByText('Promotion gates').click()
+  await expect(governance.getByText(/Frozen-test PR-AUC does not decline/)).toContainText('Failed')
+  await expect(governance.getByRole('link', {name: 'Download evaluation report'})).toHaveAttribute('href', './model-governance.json')
+})

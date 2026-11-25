@@ -76,3 +76,8 @@ summary { color: var(--accent); cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; scroll-behavior: auto !important; }
 }
+.model-window { display: contents; }
+.model-window dt { text-transform: capitalize; }
+.model-split { margin-top: 12px; }
+.model-gates { margin-top: 10px; }
+.model-gates ul { margin: 4px 0; padding-inline-start: 20px; }

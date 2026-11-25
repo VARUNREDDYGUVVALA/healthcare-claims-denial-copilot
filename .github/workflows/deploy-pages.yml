@@ -28,3 +28,5 @@ jobs:
           grep -F '<title>Healthcare Claims Denial Copilot</title>' /tmp/claims-index.html
           curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/demo.json" |
             python -c 'import json,sys; d=json.load(sys.stdin); assert any(x["id"]=="CLM-GUIDE-1" for x in d["lines"])'
+          curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/model-governance.json" |
+            python -c 'import json,sys; d=json.load(sys.stdin); assert "logistic" in d["test"] and len(d["dataset_sha256"]) == 64'

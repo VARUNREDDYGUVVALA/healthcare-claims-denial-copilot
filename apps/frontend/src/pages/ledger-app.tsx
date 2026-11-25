@@ -4,6 +4,7 @@ import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCom
 import { BatchReview } from '../components/batch'
 import type { BatchPolicy } from '../components/batch'
 import { Investigation } from '../components/investigation'
+import { ModelGovernance } from '../components/model-governance'
 import { VoiceQuestion } from '../components/voice-question'
 import { daysBetween, ManagerLedger, PolicyRuler, rankDaily } from '../components/ledger'
 import '../style.css'
@@ -164,6 +165,7 @@ function App() {
         {demo && view === 'batch' && <BatchReview policies={demo.policies}/>}
         {demo && view === 'dashboard' && <Dashboard demo={demo} reviews={local.decisions.length}/>}
         {demo && view === 'dashboard' && <ManagerLedger lines={lines} days={daily} reviewed={[...demo.decisions, ...local.decisions]} capacity={capacity} unmatched={demo.unmatched.length}/>}
+        {demo && view === 'dashboard' && <ModelGovernance/>}
         {demo && view === 'unmatched' && <>
           <h1>Unmatched responses</h1><p className="subtitle">Payer responses whose claim line is absent from the billing extract.</p>
           <div className="panel scroll"><table><thead><tr><th>Response ID</th><th>Referenced line</th><th>Received</th><th>Status</th><th>Recorded reason</th></tr></thead><tbody>

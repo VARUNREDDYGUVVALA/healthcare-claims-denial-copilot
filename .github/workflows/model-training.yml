@@ -17,8 +17,11 @@ jobs:
           cache: pip
       - run: python -m pip install -r requirements.txt
       - run: python -m scripts.export_demo
-      - run: git diff --exit-code -- apps/frontend/public/demo.json
+      - run: python -m scripts.evaluate_challengers
+      - run: git diff --exit-code -- apps/frontend/public/demo.json apps/frontend/public/model-governance.json
       - uses: actions/upload-artifact@v4
         with:
           name: synthetic-model-evaluation
-          path: artifacts/metrics.json
+          path: |
+            artifacts/metrics.json
+            artifacts/model-governance.json

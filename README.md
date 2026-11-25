@@ -195,3 +195,7 @@ This iteration covers the existing static portfolio demo and the local investiga
 See the [repository map](docs/architecture.md#repository-map), [data dictionary](docs/data_dictionary.md), [model card](docs/model_card.md), [agent design](docs/agent_design.md), [API reference](docs/api_reference.md), [security notes](docs/security.md), [deployment guide](docs/deployment.md), and [walkthrough](docs/demo_walkthrough.md).
 
 From the repository root, run `make data`, `make train`, and `make evaluate` for separate pipeline stages. Run `make export` for the reproducible end-to-end artifact build and `python -m evaluation.rag.evaluate_policies` for the synthetic policy citation cases.
+
+## Model governance experiment
+
+Open **Manager dashboard → Model governance** to compare logistic regression, random forest, histogram gradient boosting, and the rules baseline. The report separates validation selection from release gates on frozen test and includes calibration, payer and procedure slices, and feature drift. [Experiment design and measured results](docs/model_governance.md)

@@ -1,0 +1,247 @@
+{
+  "validation_start": "2025-07-01",
+  "test_start": "2025-09-01",
+  "review_capacity": 3,
+  "dataset_sha256": "78c15e26901f40a02cdbd8c11a8d38b5617ce43121b5df7f8f252046c827ba95",
+  "windows": {
+    "train": {
+      "lines": 1958,
+      "denials": 523
+    },
+    "validation": {
+      "lines": 601,
+      "denials": 144
+    },
+    "test": {
+      "lines": 1248,
+      "denials": 317
+    }
+  },
+  "reference": "logistic",
+  "recommended": "gradient_boosting",
+  "validation": {
+    "logistic": {
+      "pr_auc": 0.7785,
+      "precision_at_capacity": 0.641,
+      "reviewed": 156,
+      "recall_at_capacity": 0.6944,
+      "roc_auc": 0.9203,
+      "brier": 0.0897
+    },
+    "random_forest": {
+      "pr_auc": 0.7617,
+      "precision_at_capacity": 0.6346,
+      "reviewed": 156,
+      "recall_at_capacity": 0.6875,
+      "roc_auc": 0.9176,
+      "brier": 0.0893
+    },
+    "gradient_boosting": {
+      "pr_auc": 0.7885,
+      "precision_at_capacity": 0.641,
+      "reviewed": 156,
+      "recall_at_capacity": 0.6944,
+      "roc_auc": 0.9215,
+      "brier": 0.0875
+    },
+    "rules": {
+      "pr_auc": 0.6864,
+      "precision_at_capacity": 0.5962,
+      "reviewed": 156,
+      "recall_at_capacity": 0.6458,
+      "roc_auc": 0.8972
+    }
+  },
+  "gates": {
+    "random_forest": [
+      {
+        "name": "PR-AUC improves by at least 0.005",
+        "passed": false
+      },
+      {
+        "name": "Daily-capacity precision does not decline",
+        "passed": false
+      },
+      {
+        "name": "Brier score does not increase",
+        "passed": true
+      }
+    ],
+    "gradient_boosting": [
+      {
+        "name": "PR-AUC improves by at least 0.005",
+        "passed": true
+      },
+      {
+        "name": "Daily-capacity precision does not decline",
+        "passed": true
+      },
+      {
+        "name": "Brier score does not increase",
+        "passed": true
+      }
+    ]
+  },
+  "test": {
+    "logistic": {
+      "pr_auc": 0.7918,
+      "precision_at_capacity": 0.6604,
+      "reviewed": 318,
+      "recall_at_capacity": 0.6625,
+      "roc_auc": 0.9266,
+      "brier": 0.0847
+    },
+    "random_forest": {
+      "pr_auc": 0.7463,
+      "precision_at_capacity": 0.6635,
+      "reviewed": 318,
+      "recall_at_capacity": 0.6656,
+      "roc_auc": 0.9169,
+      "brier": 0.0868
+    },
+    "gradient_boosting": {
+      "pr_auc": 0.7727,
+      "precision_at_capacity": 0.6698,
+      "reviewed": 318,
+      "recall_at_capacity": 0.6719,
+      "roc_auc": 0.9208,
+      "brier": 0.0855
+    },
+    "rules": {
+      "pr_auc": 0.7126,
+      "precision_at_capacity": 0.6352,
+      "reviewed": 318,
+      "recall_at_capacity": 0.6372,
+      "roc_auc": 0.9101
+    }
+  },
+  "release": "retain_reference",
+  "release_gates": [
+    {
+      "name": "Frozen-test PR-AUC does not decline",
+      "passed": false
+    },
+    {
+      "name": "Frozen-test daily-capacity precision does not decline",
+      "passed": true
+    },
+    {
+      "name": "Frozen-test Brier score does not increase",
+      "passed": false
+    }
+  ],
+  "calibration": [
+    {
+      "lower": 0.0,
+      "count": 799,
+      "predicted": 0.0255,
+      "observed": 0.0175
+    },
+    {
+      "lower": 0.4,
+      "count": 27,
+      "predicted": 0.4771,
+      "observed": 0.7407
+    },
+    {
+      "lower": 0.5,
+      "count": 98,
+      "predicted": 0.5919,
+      "observed": 0.449
+    },
+    {
+      "lower": 0.6,
+      "count": 113,
+      "predicted": 0.6626,
+      "observed": 0.5841
+    },
+    {
+      "lower": 0.7,
+      "count": 85,
+      "predicted": 0.7631,
+      "observed": 0.8353
+    },
+    {
+      "lower": 0.8,
+      "count": 84,
+      "predicted": 0.8381,
+      "observed": 0.75
+    },
+    {
+      "lower": 0.9,
+      "count": 42,
+      "predicted": 0.9704,
+      "observed": 0.9286
+    }
+  ],
+  "test_slices": [
+    {
+      "dimension": "payer",
+      "value": "Juniper Mutual",
+      "count": 636,
+      "denials": 163,
+      "brier": 0.085,
+      "denial_rate": 0.2563,
+      "mean_score": 0.2645
+    },
+    {
+      "dimension": "payer",
+      "value": "Northstar Health",
+      "count": 612,
+      "denials": 154,
+      "brier": 0.0861,
+      "denial_rate": 0.2516,
+      "mean_score": 0.2842
+    },
+    {
+      "dimension": "procedure",
+      "value": "IMG-01",
+      "count": 414,
+      "denials": 163,
+      "brier": 0.1258,
+      "denial_rate": 0.3937,
+      "mean_score": 0.4222
+    },
+    {
+      "dimension": "procedure",
+      "value": "LAB-02",
+      "count": 434,
+      "denials": 67,
+      "brier": 0.0618,
+      "denial_rate": 0.1544,
+      "mean_score": 0.1924
+    },
+    {
+      "dimension": "procedure",
+      "value": "VIS-03",
+      "count": 400,
+      "denials": 87,
+      "brier": 0.0696,
+      "denial_rate": 0.2175,
+      "mean_score": 0.2097
+    }
+  ],
+  "feature_drift": [
+    {
+      "feature": "missing_eligibility",
+      "train_rate": 0.1834,
+      "test_rate": 0.1987,
+      "delta": 0.0154,
+      "alert": false
+    },
+    {
+      "feature": "missing_imaging_authorization",
+      "train_rate": 0.1124,
+      "test_rate": 0.1282,
+      "delta": 0.0158,
+      "alert": false
+    },
+    {
+      "feature": "possible_duplicate",
+      "train_rate": 0.096,
+      "test_rate": 0.0857,
+      "delta": -0.0103,
+      "alert": false
+    }
+  ]
+}
