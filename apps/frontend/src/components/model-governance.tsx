@@ -41,6 +41,15 @@ export function ModelGovernance() {
       <p>Validation starts {report.validation_start}. Test starts {report.test_start}. Capacity is {report.review_capacity} lines per submission day.</p>
       <dl>{Object.entries(report.windows).map(([name, values]) =>
         <div className="model-window" key={name}><dt>{name}</dt><dd>{values.lines.toLocaleString('en-US')} lines · {values.denials.toLocaleString('en-US')} denials</dd></div>)}</dl>
+      <details className="version-diff">
+        <summary>Promotion gates</summary>
+        {Object.entries(report.gates).map(([name, checks]) => <div className="model-gates" key={name}><h3>{names[name]} · Validation</h3>
+          <ul>{checks.map(check => <li key={check.name}><strong>{check.passed ? 'Passed' : 'Failed'}</strong> · {check.name}</li>)}</ul>
+        </div>)}
+        {!!report.release_gates.length && <div className="model-gates"><h3>{names[report.recommended]} · Frozen test</h3>
+          <ul>{report.release_gates.map(check => <li key={check.name}><strong>{check.passed ? 'Passed' : 'Failed'}</strong> · {check.name}</li>)}</ul>
+        </div>}
+      </details>
       <label className="ledger-control model-split">Evaluation split
         <select value={window} onChange={event => setWindow(event.target.value === 'test' ? 'test' : 'validation')}>
           <option value="test">Frozen test</option><option value="validation">Validation</option>
@@ -53,15 +62,6 @@ export function ModelGovernance() {
           <td>{formatPercent(score.precision_at_capacity)}</td><td>{formatPercent(score.recall_at_capacity)}</td><td>{score.brier?.toFixed(4) ?? '—'}</td>
         </tr>)}</tbody>
       </table></div>
-      <details className="version-diff">
-        <summary>Promotion gates</summary>
-        {Object.entries(report.gates).map(([name, checks]) => <div className="model-gates" key={name}><h3>{names[name]} · Validation</h3>
-          <ul>{checks.map(check => <li key={check.name}><strong>{check.passed ? 'Passed' : 'Failed'}</strong> · {check.name}</li>)}</ul>
-        </div>)}
-        {!!report.release_gates.length && <div className="model-gates"><h3>{names[report.recommended]} · Frozen test</h3>
-          <ul>{report.release_gates.map(check => <li key={check.name}><strong>{check.passed ? 'Passed' : 'Failed'}</strong> · {check.name}</li>)}</ul>
-        </div>}
-      </details>
       <details className="version-diff">
         <summary>Test calibration and payer/procedure slices</summary>
         <p>{names[report.recommended]} · Grouped predicted risk and observed denial rates.</p>
