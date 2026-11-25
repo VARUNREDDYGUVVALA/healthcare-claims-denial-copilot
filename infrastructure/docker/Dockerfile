@@ -6,11 +6,8 @@ RUN --mount=type=secret,id=claims_build_ca \
 COPY apps/frontend/ ./
 RUN npm run build
 
-FROM python:3.12-slim
-WORKDIR /app
-COPY requirements.txt ./
-RUN --mount=type=secret,id=claims_build_ca \
-    if [ -f /run/secrets/claims_build_ca ]; then export PIP_CERT=/run/secrets/claims_build_ca; fi; pip install --no-cache-dir -r requirements.txt
+FROM scratch AS application
+WORKDIR /source
 COPY apps/api/ ./apps/api/
 COPY data/ ./data/
 COPY data_engineering/ ./data_engineering/
@@ -20,7 +17,19 @@ COPY agentic_ai/ ./agentic_ai/
 COPY mcp_server/ ./mcp_server/
 COPY scripts/ ./scripts/
 COPY --from=frontend /build/dist ./apps/frontend/dist/
-RUN mkdir -p apps/frontend/public artifacts && useradd --create-home copilot && chown -R copilot:copilot /app
+
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt ./
+RUN --mount=type=secret,id=claims_build_ca \
+    --mount=type=bind,from=application,source=/source,target=/source \
+    set -e; \
+    if [ -f /run/secrets/claims_build_ca ]; then export PIP_CERT=/run/secrets/claims_build_ca; fi; \
+    pip install --no-cache-dir -r requirements.txt; \
+    cp -a /source/. /app/; \
+    mkdir -p apps/frontend/public artifacts; \
+    useradd --create-home copilot; \
+    chown -R copilot:copilot /app
 USER copilot
 ENV COPILOT_SERVE_UI=1 PYTHONUNBUFFERED=1
 EXPOSE 8000
