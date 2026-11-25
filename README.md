@@ -79,20 +79,20 @@ Python 3.12 and Node.js 22 are used in CI.
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-python -m copilot.pipeline
+python -m scripts.export_demo
 python -m pytest -q
 ```
 
-The pipeline writes `artifacts/claims.duckdb`, `artifacts/model.joblib`, `artifacts/metrics.json`, `artifacts/scored_claim_lines.json`, and `frontend/public/demo.json`. Rebuild with the same seed to reproduce the snapshot. The DuckDB build also preserves decisions saved through the API.
+The pipeline writes `artifacts/claims.duckdb`, `artifacts/model.joblib`, `artifacts/metrics.json`, `artifacts/scored_claim_lines.json`, and `apps/frontend/public/demo.json`. Rebuild with the same seed to reproduce the snapshot. The DuckDB build also preserves decisions saved through the API.
 
 ```sh
-python -m uvicorn copilot.api:app --host 127.0.0.1 --port 8000
+python -m uvicorn apps.api.main:app --host 127.0.0.1 --port 8000
 ```
 
 API routes include `GET /api/queue`, `GET /api/metrics`, `GET /api/unmatched-responses`, `GET /api/lines/{line_id}`, and `POST /api/lines/{line_id}/decisions`. A decision body can be `{"action":"Verify authorization","note":"Check the payer portal"}`.
 
 ```sh
-cd frontend
+cd apps/frontend
 npm ci
 npm run check
 npm run build
@@ -107,11 +107,11 @@ For frontend development use `npm run dev`. Playwright runs both desktop and mob
 
 Create the public repository `healthcare-claims-denial-copilot`, then choose **Settings → Pages → Build and deployment → Source → GitHub Actions**. Push `main` or dispatch **Checks and GitHub Pages** after enabling Pages.
 
-The workflow regenerates and checks the committed export, runs Python tests, type-checks and builds React, and runs desktop and mobile browser tests. A successful `main` build publishes `frontend/dist` and checks the deployed HTML and JSON. The Actions deployment job displays the Pages URL.
+The workflow regenerates and checks the committed export, runs Python tests, type-checks and builds React, and runs desktop and mobile browser tests. A successful `main` build publishes `apps/frontend/dist` and checks the deployed HTML and JSON. The Actions deployment job displays the Pages URL.
 
 ### Animated background theme
 
-Open [the standalone theme](https://varunreddyguvvala.github.io/healthcare-claims-denial-copilot/theme.html) or load `frontend/public/theme.html` directly in a browser. The three scenes use self-contained fictional examples and zero network requests. Use `#strip`, `#rail`, or `#form` to link to a specific scene.
+Open [the standalone theme](https://varunreddyguvvala.github.io/healthcare-claims-denial-copilot/theme.html) or load `apps/frontend/public/theme.html` directly in a browser. The three scenes use self-contained fictional examples and zero network requests. Use `#strip`, `#rail`, or `#form` to link to a specific scene.
 
 ### Batch claim review
 
@@ -167,11 +167,11 @@ docker compose up --build -d
 docker compose ps
 ```
 
-If your build network uses a trusted TLS inspection CA, build with `docker build --secret id=claims_build_ca,src=/path/to/trusted-ca-bundle.pem -t healthcare-claims-denial-copilot-copilot .`, then run `docker compose up --no-build -d`. The build uses the optional bundle only while installing dependencies.
+If your build network uses a trusted TLS inspection CA, build with `docker build -f infrastructure/docker/Dockerfile --secret id=claims_build_ca,src=/path/to/trusted-ca-bundle.pem -t healthcare-claims-denial-copilot-copilot .`, then run `docker compose up --no-build -d`. The build uses the optional bundle only while installing dependencies.
 
 Open [the authenticated local workflow](http://localhost:8000/?mode=api). Open **Review March 2026 case**, simulate the response, then start the **Local investigation** with the analyst token. The evidence includes the January authorization and the Version 1 policy. Save the investigation ID to reopen it after a service restart. Enter the supervisor token, a review note, and an approval or rejection to record the final review.
 
-You can also run without Docker after generating the artifacts. Build with `npm ci && npm run build` inside `frontend`, then from the repository root run `COPILOT_SERVE_UI=1 python -m uvicorn copilot.api:app`. Set the same two tokens in that shell. The investigation UI appears only on loopback hosts.
+You can also run without Docker after generating the artifacts. Build with `npm ci && npm run build` inside `apps/frontend`, then from the repository root run `COPILOT_SERVE_UI=1 python -m uvicorn apps.api.main:app`. Set the same two tokens in that shell. The investigation UI appears only on loopback hosts.
 
 | Operation | Endpoint | Role |
 | --- | --- | --- |
@@ -183,8 +183,15 @@ The API requires bearer tokens for claims routes when configured in full local m
 
 ### Local MCP
 
-In your Python environment, run `python -m copilot.mcp_server` as a stdio MCP server from the repository root after generating artifacts. It exposes two read-only tools, `applicable_policies` and `claim_evidence`. The DuckDB file is accessed directly, so run the tool when no separate process holds an open write connection.
+In your Python environment, run `python -m mcp_server.server` as a stdio MCP server from the repository root after generating artifacts. It exposes two read-only tools, `applicable_policies` and `claim_evidence`. The DuckDB file is accessed directly, so run the tool when no separate process holds an open write connection.
 
 ### Delivery scope
 
 This iteration covers the existing static portfolio demo and the local investigation slice. The current dataset, deterministic policy matcher, and logistic regression baseline remain the foundation. The million-line streaming lakehouse, additional model families, vector and hosted-LLM integrations, production identity and observability, and AWS deployment profiles are separate phases. No paid infrastructure is needed to run the demo.
+
+
+## Repository layout
+
+See the [repository map](docs/architecture.md#repository-map), [data dictionary](docs/data_dictionary.md), [model card](docs/model_card.md), [agent design](docs/agent_design.md), [API reference](docs/api_reference.md), [security notes](docs/security.md), [deployment guide](docs/deployment.md), and [walkthrough](docs/demo_walkthrough.md).
+
+From the repository root, run `make data`, `make train`, and `make evaluate` for separate pipeline stages. Run `make export` for the reproducible end-to-end artifact build and `python -m evaluation.rag.evaluate_policies` for the synthetic policy citation cases.

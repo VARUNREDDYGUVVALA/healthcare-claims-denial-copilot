@@ -4,9 +4,13 @@ from datetime import date
 import pytest
 from fastapi.testclient import TestClient
 
-from copilot import api, investigation, mcp_server
-from copilot.data import connect, generate, import_data
-from copilot.pipeline import claim_lines, explain
+from apps.api import main as api
+from agentic_ai.workflows import investigation
+from mcp_server import server as mcp_server
+from data.generator.claims import generate
+from data_engineering.ingestion.duckdb_extract import connect, import_data
+from machine_learning.feature_engineering.claims import claim_lines
+from generative_ai.retrieval.policies import explain
 
 ANALYST = {"Authorization": "Bearer " + "a" * 32}
 SUPERVISOR = {"Authorization": "Bearer " + "s" * 32}

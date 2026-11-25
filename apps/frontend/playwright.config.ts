@@ -4,7 +4,8 @@ const projectPath = '/healthcare-claims-denial-copilot/'
 const baseURL = 'http://127.0.0.1:4173' + projectPath
 
 export default defineConfig({
-  testDir: './e2e',
+  testDir: '../../tests/e2e',
+  tsconfig: '../../tests/e2e/tsconfig.json',
   webServer: {
     command: 'npm run preview -- --host 127.0.0.1 --port 4173 --strictPort --base ' + projectPath,
     url: baseURL,

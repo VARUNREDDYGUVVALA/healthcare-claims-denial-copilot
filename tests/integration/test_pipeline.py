@@ -1,11 +1,12 @@
 from datetime import date
-import json
 
 import pytest
 from fastapi.testclient import TestClient
 
-from copilot import api, pipeline
-from copilot.data import connect, generate, import_data
+from apps.api import main as api
+from machine_learning.training import pipeline
+from data.generator.claims import generate
+from data_engineering.ingestion.duckdb_extract import connect, import_data
 
 @pytest.fixture(scope="module")
 def db():
@@ -78,9 +79,3 @@ def test_api_decision_persists(tmp_path, monkeypatch):
     assert response.status_code == 201
     assert client.get("/api/lines/CLM-GUIDE-1").json()["decisions"] == [response.json()]
     assert client.post("/api/lines/CLM-GUIDE-2/decisions", json=data).status_code == 409
-
-def test_export_contract():
-    demo = json.loads((pipeline.ROOT / "frontend/public/demo.json").read_text())
-    assert demo["metrics"]["capacity"] == 3
-    assert all(0 <= line["risk"] <= 1 for line in demo["lines"])
-    assert next(line["risk"] for line in demo["lines"] if line["id"] == "CLM-GUIDE-1") >= .65

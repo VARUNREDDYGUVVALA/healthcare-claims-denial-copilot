@@ -3,9 +3,9 @@
 artifacts
 **/__pycache__
 .pytest_cache
-frontend/node_modules
-frontend/dist
-frontend/test-results
-frontend/playwright-report
+apps/frontend/node_modules
+apps/frontend/dist
+apps/frontend/test-results
+apps/frontend/playwright-report
 **/.env
 **/.env.*

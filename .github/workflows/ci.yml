@@ -1,0 +1,29 @@
+name: Checks and GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    uses: ./.github/workflows/python-tests.yml
+  frontend:
+    uses: ./.github/workflows/frontend-tests.yml
+  model:
+    uses: ./.github/workflows/model-training.yml
+  retrieval:
+    uses: ./.github/workflows/rag-evaluation.yml
+  security:
+    uses: ./.github/workflows/security-scan.yml
+  deploy:
+    needs: [python, frontend, model, retrieval, security]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy-pages.yml

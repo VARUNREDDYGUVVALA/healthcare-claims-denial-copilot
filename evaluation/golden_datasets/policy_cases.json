@@ -1,0 +1,8 @@
+[
+  {"payer": "Northstar Health", "procedure": "IMG-01", "service": "2026-03-30", "reason": "AUTH", "expected": "NS-IMG-2026-v1"},
+  {"payer": "Northstar Health", "procedure": "IMG-01", "service": "2026-04-01", "reason": "AUTH", "expected": "NS-IMG-2026-v2"},
+  {"payer": "Northstar Health", "procedure": "IMG-01", "service": "2026-07-01", "reason": "AUTH", "expected": null},
+  {"payer": "Juniper Mutual", "procedure": "IMG-01", "service": "2026-03-30", "reason": "AUTH", "expected": null},
+  {"payer": "Northstar Health", "procedure": "LAB-02", "service": "2026-04-01", "reason": "AUTH", "expected": null},
+  {"payer": "Northstar Health", "procedure": "IMG-01", "service": "2026-04-01", "reason": "DUP", "expected": null}
+]

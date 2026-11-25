@@ -1,0 +1,24 @@
+name: Model training and reproducible export
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m scripts.export_demo
+      - run: git diff --exit-code -- apps/frontend/public/demo.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-model-evaluation
+          path: artifacts/metrics.json
