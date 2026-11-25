@@ -8,7 +8,7 @@ import re
 import joblib
 from sklearn.feature_extraction import DictVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import average_precision_score
+from sklearn.metrics import average_precision_score, brier_score_loss, roc_auc_score
 from sklearn.pipeline import make_pipeline
 
 from .data import PROCEDURES, REASONS, connect, generate, import_data, rows
@@ -83,7 +83,9 @@ def evaluate(lines, scores):
     ]
     return {"pr_auc": round(float(average_precision_score(actual, scores)), 4),
             "precision_at_capacity": round(sum(reviewed) / len(reviewed), 4),
-            "reviewed": len(reviewed)}
+            "reviewed": len(reviewed),
+            "recall_at_capacity": round(sum(reviewed) / sum(actual), 4),
+            "roc_auc": round(float(roc_auc_score(actual, scores)), 4)}
 
 def baseline(line):
     f = features(line)
@@ -123,12 +125,17 @@ def build():
         model = make_pipeline(DictVectorizer(), LogisticRegression(max_iter=500))
         model.fit([features(line) for line in train], [line["status"] == "denied" for line in train])
         scores = model.predict_proba([features(line) for line in lines])[:, 1]
+        holdout_scores = model.predict_proba([features(line) for line in holdout])[:, 1]
         metrics = {
             "cutoff": str(CUTOFF), "capacity": CAPACITY, "train_lines": len(train),
             "holdout_lines": len(holdout), "holdout_denials": sum(line["status"] == "denied" for line in holdout),
-            "model": evaluate(holdout, model.predict_proba([features(line) for line in holdout])[:, 1]),
+            "model": evaluate(holdout, holdout_scores),
             "rules": evaluate(holdout, [baseline(line) for line in holdout]),
         }
+        metrics["model"]["brier_score"] = round(float(brier_score_loss(
+            [line["status"] == "denied" for line in holdout],
+            holdout_scores,
+        )), 4)
         by_month = defaultdict(lambda: {"finalized": 0, "denied": 0, "reviews": 0})
         historical = sorted(data["decisions"], key=lambda decision: decision["id"])
         by_id = {line["id"]: line for line in lines}

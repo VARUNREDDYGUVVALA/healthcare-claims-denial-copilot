@@ -60,10 +60,12 @@ The model uses logistic regression with a training-fitted `DictVectorizer`. Pred
 
 The chronological split uses submission dates. Training uses 2,674 finalized lines with both submission and response before September 1, 2025. The later holdout has 1,248 finalized lines, including 317 denials. Pending and walkthrough lines are excluded from evaluation. The rules baseline weights missing eligibility at 0.55, missing imaging authorization at 0.38, and possible duplicates at 0.48.
 
-| Method | PR-AUC (average precision) | Precision at 3 reviews/day |
-| --- | ---: | ---: |
-| Logistic regression | 0.7946 | 66.04% |
-| Rules baseline | 0.7126 | 63.52% |
+| Method | PR-AUC (average precision) | ROC-AUC | Precision at 3 reviews/day | Recall at 3 reviews/day |
+| --- | ---: | ---: | ---: | ---: |
+| Logistic regression | 0.7946 | 0.9270 | 66.04% | 66.25% |
+| Rules baseline | 0.7126 | 0.9101 | 63.52% | 63.72% |
+
+The logistic model’s Brier score on the holdout is **0.0841**. The rules produce ranking scores rather than calibrated probabilities.
 
 Precision pools up to three top-ranked holdout lines per submission day and breaks ties by stable ID. Each method selects 318 lines. The holdout and dashboard cover the generated population eligible for their respective calculations. The browser queue includes all generated claim lines, including the walkthrough claims. Search and status filters apply to the entire ranked queue, which displays 25 lines per page.
 
@@ -137,3 +139,52 @@ Upload processing and recommendations stay in the current browser view. Export r
 The main interface uses the Ledger theme. The queue capacity slider previews the cutoff for the current ranked list and compares model and rules denials caught at the selected daily capacity on the fixed holdout. Deferred rows free a queue slot for the current session. Manager charts use the same holdout capacity simulation. The review grid groups historical and browser-local reviews by claim submission date. The today marker appears on the daily columns when today is in the displayed data range.
 
 Open **Review March 2026 case** to see the January–June timeline. The treatment date of March 30 resolves to Version 1, even though submission and denial fall after the April 1 change. Scrubbing the date previews another policy while keeping the recorded dates, reason, and original policy citation intact. Compare policy versions below the ruler to see the changed wording.
+
+## Enterprise investigation workflow
+
+The Pages demo runs from a reproducible export. The local API adds a deterministic LangGraph investigation with evidence intake, service-date citation verification, conditional appeal drafting, and an analyst-to-supervisor handoff. The appeal is an internal draft. The API never transmits it to a payer.
+
+```mermaid
+flowchart LR
+  A[Recorded fictional denial] --> B[Claims intake]
+  B --> C[Verify policy and supporting evidence]
+  C -->|Verified rebuttal evidence| D[Prepare appeal draft]
+  C -->|Evidence gap or other investigation| E[Record evidence findings]
+  D --> F[(DuckDB awaiting-review checkpoint)]
+  E --> F
+  F --> G[Supervisor decision]
+  G --> H[(Final status and audit event)]
+```
+
+### Local application
+
+From the repository root, set separate local analyst and supervisor tokens before starting Docker Compose. Keep these values out of Git.
+
+```sh
+export COPILOT_ANALYST_TOKEN="$(openssl rand -hex 32)"
+export COPILOT_SUPERVISOR_TOKEN="$(openssl rand -hex 32)"
+docker compose up --build -d
+docker compose ps
+```
+
+If your build network uses a trusted TLS inspection CA, build with `docker build --secret id=claims_build_ca,src=/path/to/trusted-ca-bundle.pem -t healthcare-claims-denial-copilot-copilot .`, then run `docker compose up --no-build -d`. The build uses the optional bundle only while installing dependencies.
+
+Open [the authenticated local workflow](http://localhost:8000/?mode=api). Open **Review March 2026 case**, simulate the response, then start the **Local investigation** with the analyst token. The evidence includes the January authorization and the Version 1 policy. Save the investigation ID to reopen it after a service restart. Enter the supervisor token, a review note, and an approval or rejection to record the final review.
+
+You can also run without Docker after generating the artifacts. Build with `npm ci && npm run build` inside `frontend`, then from the repository root run `COPILOT_SERVE_UI=1 python -m uvicorn copilot.api:app`. Set the same two tokens in that shell. The investigation UI appears only on loopback hosts.
+
+| Operation | Endpoint | Role |
+| --- | --- | --- |
+| Start | `POST /api/investigations` with `{"line_id":"CLM-LEDGER-1"}` | Analyst or supervisor |
+| Reopen | `GET /api/investigations/{id}` | Analyst or supervisor |
+| Record final review | `POST /api/investigations/{id}/decision` with `{"decision":"approve","note":"Verified synthetic evidence."}` | Supervisor |
+
+The API requires bearer tokens for claims routes when configured in full local mode. The investigation routes always require distinct tokens of at least 24 characters. A process lock and DuckDB transaction protect the single-process workflow checkpoint and audit event. Role tokens are local demo credentials and represent roles rather than individual identities. The repository contains fictional data only.
+
+### Local MCP
+
+In your Python environment, run `python -m copilot.mcp_server` as a stdio MCP server from the repository root after generating artifacts. It exposes two read-only tools, `applicable_policies` and `claim_evidence`. The DuckDB file is accessed directly, so run the tool when no separate process holds an open write connection.
+
+### Delivery scope
+
+This iteration covers the existing static portfolio demo and the local investigation slice. The current dataset, deterministic policy matcher, and logistic regression baseline remain the foundation. The million-line streaming lakehouse, additional model families, vector and hosted-LLM integrations, production identity and observability, and AWS deployment profiles are separate phases. No paid infrastructure is needed to run the demo.

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCombined, ChevronRight, CircleHelp, ClipboardList, FileCheck2, Files, FlaskConical, Layers3, ListFilter, Search } from 'lucide-react'
 import { BatchReview } from './batch'
 import type { BatchPolicy } from './batch'
+import { Investigation } from './investigation'
 import { VoiceQuestion } from './voice-question'
 import { daysBetween, ManagerLedger, PolicyRuler, rankDaily } from './ledger'
 import './style.css'
@@ -19,7 +20,7 @@ type Line = {
   eligibility: EvidenceRecord[]; authorizations: EvidenceRecord[]; duplicates: string[] | null
   explanation: { reason: string; code: string; policy: Policy | null; action: string } | null
 }
-type Score = { pr_auc: number; precision_at_capacity: number }
+type Score = { pr_auc: number; precision_at_capacity: number; recall_at_capacity: number; roc_auc: number; brier_score?: number }
 type Demo = {
   lines: Line[]; decisions: Decision[]
   policies: BatchPolicy[]
@@ -32,6 +33,8 @@ const viewLabels = {queue: 'Claim queue', dashboard: 'Manager dashboard', unmatc
 type View = keyof typeof viewLabels
 type QueueFilter = 'all' | 'pre-submission' | Outcome
 const queuePageSize = 25
+const localApiMode = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname) &&
+  new URLSearchParams(location.search).get('mode') === 'api'
 const formatCount = (value: number) => value.toLocaleString('en-US')
 const key = 'claims-copilot-v1'
 const guide = 'CLM-GUIDE-1'
@@ -233,6 +236,7 @@ function Detail({line, status, policies, decisions, back, reveal, save, earlyCas
     </section>}
     </div></div>
     <ClaimQuestions line={line} status={status} decisions={decisions}/>
+    {response && localApiMode && <Investigation lineId={line.id}/>}
   </>
 }
 
@@ -361,9 +365,9 @@ function Dashboard({demo, reviews}: {demo: Demo; reviews: number}) {
         <div className="trend" role="list">{demo.months.map(item => <div role="listitem" key={item.month}><span>{new Date(item.month + '-01T00:00:00Z').toLocaleDateString('en-US', {month:'short', timeZone:'UTC'})}</span><span className="trend-track"><i style={{width:percent(item.denied / item.finalized)}}/></span><strong>{percent(item.denied / item.finalized, 1)}</strong><small>{item.reviews} reviews</small></div>)}</div>
       </section>
       <section className="panel section"><h2>Risk model evaluation</h2><p>{demo.metrics.holdout_lines} finalized holdout lines from {prettyDate(demo.metrics.cutoff)} onward.</p>
-        <div className="scroll"><table><thead><tr><th>Method</th><th>PR-AUC</th><th>Precision @ {demo.metrics.capacity}/day</th></tr></thead><tbody>
-          <tr><td>Logistic regression</td><td>{demo.metrics.model.pr_auc.toFixed(4)}</td><td>{percent(demo.metrics.model.precision_at_capacity, 2)}</td></tr>
-          <tr><td>Rules baseline</td><td>{demo.metrics.rules.pr_auc.toFixed(4)}</td><td>{percent(demo.metrics.rules.precision_at_capacity, 2)}</td></tr>
+        <div className="scroll"><table><thead><tr><th>Method</th><th>PR-AUC</th><th>ROC-AUC</th><th>Precision @ {demo.metrics.capacity}/day</th><th>Recall @ {demo.metrics.capacity}/day</th></tr></thead><tbody>
+          <tr><td>Logistic regression</td><td>{demo.metrics.model.pr_auc.toFixed(4)}</td><td>{demo.metrics.model.roc_auc.toFixed(4)}</td><td>{percent(demo.metrics.model.precision_at_capacity, 2)}</td><td>{percent(demo.metrics.model.recall_at_capacity, 2)}</td></tr>
+          <tr><td>Rules baseline</td><td>{demo.metrics.rules.pr_auc.toFixed(4)}</td><td>{demo.metrics.rules.roc_auc.toFixed(4)}</td><td>{percent(demo.metrics.rules.precision_at_capacity, 2)}</td><td>{percent(demo.metrics.rules.recall_at_capacity, 2)}</td></tr>
         </tbody></table></div>
       </section>
     </div>

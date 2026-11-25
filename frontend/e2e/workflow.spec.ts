@@ -161,3 +161,39 @@ test('Ledger compares policy editions and previews a hypothetical service date',
   await expect(page.getByRole('heading', {name: 'Daily review capacity'})).toBeVisible()
   await expect(page.getByRole('heading', {name: 'Review activity'})).toBeVisible()
 })
+
+test('local investigation displays verified evidence and submits a supervisor review', async ({ page }) => {
+  const id = '11111111-1111-4111-8111-111111111111'
+  const run = {
+    id, line_id: 'CLM-LEDGER-1', status: 'awaiting_review',
+    recorded_reason: 'Prior authorization required',
+    findings: ['Verify the authorization record.'],
+    suggested_action: 'Verify authorization',
+    policy: {id: 'NS-IMG-2026-v1', section: 'Imaging', excerpt: 'An authorization clause.'},
+    appeal_draft: 'Review this draft alongside the verified record.',
+    trace: ['Policy and evidence verification', 'Awaiting human review'],
+    audit: [],
+  }
+  await page.route('**/api/investigations', async route => {
+    expect(route.request().headers().authorization).toBe('Bearer analyst-test')
+    expect(route.request().postDataJSON()).toEqual({line_id: 'CLM-LEDGER-1'})
+    await route.fulfill({status: 201, json: run})
+  })
+  await page.route('**/api/investigations/' + id + '/decision', async route => {
+    expect(route.request().headers().authorization).toBe('Bearer supervisor-test')
+    expect(route.request().postDataJSON()).toEqual({decision: 'approve', note: 'Verified synthetic evidence.'})
+    await route.fulfill({json: {...run, status: 'approved', audit: [{role: 'supervisor', event: 'review_approved', note: null, at: '2026-04-13T12:00:00Z'}]}})
+  })
+  await page.goto('./?mode=api')
+  await page.getByRole('button', {name: 'Review March 2026 case'}).click()
+  await page.getByRole('button', {name: 'Simulate payer response'}).click()
+  const investigation = page.getByRole('region', {name: 'Local investigation'})
+  await investigation.getByLabel('Local API token').fill('analyst-test')
+  await investigation.getByRole('button', {name: 'Start investigation'}).click()
+  await expect(investigation).toContainText('NS-IMG-2026-v1')
+  await expect(investigation).toContainText('Awaiting human review')
+  await investigation.getByLabel('Local API token').fill('supervisor-test')
+  await investigation.getByLabel('Supervisor note').fill('Verified synthetic evidence.')
+  await investigation.getByRole('button', {name: 'Record supervisor decision'}).click()
+  await expect(investigation).toContainText('review approved · supervisor')
+})

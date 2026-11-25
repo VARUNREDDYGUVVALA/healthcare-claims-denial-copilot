@@ -134,8 +134,8 @@ def import_data(db, data):
         db.execute("ROLLBACK")
         raise
 
-def connect(path=":memory:"):
-    return duckdb.connect(str(path))
+def connect(path=":memory:", *, read_only=False):
+    return duckdb.connect(str(path), read_only=read_only)
 
 def rows(db, query, params=None):
     result = db.execute(query, params or [])
