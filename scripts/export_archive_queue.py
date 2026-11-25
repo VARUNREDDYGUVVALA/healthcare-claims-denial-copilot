@@ -41,7 +41,8 @@ def write_archive(output, snapshot, manifest):
             FROM claims
         """)
         groups = db.execute("""
-            SELECT feed, service_year, count(*) FROM browse GROUP BY 1, 2 ORDER BY 1, 2
+            SELECT feed, service_year, count(*), count(*) FILTER (WHERE priority >= 4)
+            FROM browse GROUP BY 1, 2 ORDER BY 1, 2
         """).fetchall()
         payers = db.execute("SELECT payer_id, payer_name FROM payers ORDER BY 1").fetchall()
         db.execute(f"""
@@ -54,8 +55,8 @@ def write_archive(output, snapshot, manifest):
                     PARTITION_BY (feed, service_year, chunk), FILENAME_PATTERN 'rows_{{i}}')
         """, [str(output)])
     catalog = []
-    for feed, year, count in groups:
-        catalog.append({"feed": feed, "year": year, "lines": count})
+    for feed, year, count, high_priority in groups:
+        catalog.append({"feed": feed, "year": year, "lines": count, "high_priority": high_priority})
         group = output / f"feed={feed}" / f"service_year={year}"
         for index, offset in enumerate(range(0, count, CHUNK_SIZE)):
             files = list((group / f"chunk={index}").glob("*.gz"))
@@ -68,6 +69,7 @@ def write_archive(output, snapshot, manifest):
         raise ValueError("Published archive counts do not reconcile.")
     data = {
         "lines": manifest["counts"]["claim_lines"], "claims": manifest["counts"]["claims"],
+        "high_priority": sum(item["high_priority"] for item in catalog),
         "start": manifest["service_start"], "end_exclusive": manifest["service_end_exclusive"],
         "chunk_size": CHUNK_SIZE, "feeds": FEEDS, "payers": dict(payers), "groups": catalog,
     }

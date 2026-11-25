@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
-type Group = {feed: string; year: number; lines: number}
+type Group = {feed: string; year: number; lines: number; high_priority: number}
 type Catalog = {
-  lines: number; claims: number; start: string; end_exclusive: string; chunk_size: number
+  lines: number; claims: number; high_priority: number; start: string; end_exclusive: string; chunk_size: number
   feeds: Record<string, string>; payers: Record<string, string>; groups: Group[]
 }
 const PAGE_SIZE = 25
@@ -10,7 +10,7 @@ const number = new Intl.NumberFormat('en-US')
 const reasons: Record<string, string> = {AUTH: 'Authorization', DUP: 'Duplicate', ELIG: 'Eligibility'}
 const root = import.meta.env.BASE_URL + 'claims-archive/'
 
-export function ArchiveQueue({back}: {back: () => void}) {
+export function ArchiveQueue({back, reviewsSaved}: {back: () => void; reviewsSaved: number}) {
   const [catalog, setCatalog] = useState<Catalog>()
   const [feed, setFeed] = useState('hospital')
   const [year, setYear] = useState(2025)
@@ -80,41 +80,49 @@ export function ArchiveQueue({back}: {back: () => void}) {
   }
 
   return <>
-    <button className="text-button back" onClick={back}>← Guided claim queue</button>
-    <h1>Claim archive by source</h1>
-    <p className="subtitle">Synthetic hospital billing, clearinghouse, and practice management feeds. Service years 2023–2025.</p>
-    {!catalog ? <p role={failed ? 'alert' : 'status'}>{failed || 'Loading archive catalogue…'}</p> : <section className="panel section" aria-label="Claim archive">
-      <h2>{number.format(catalog.lines)} archive lines</h2>
-      <p>{number.format(catalog.claims)} distinct claims across three fictional feeds. Review priority is based on evidence flags.</p>
-      <div className="guide-actions archive-controls">
-        <label>Source feed <select aria-label="Source feed" value={feed} onChange={event => choose(event.target.value, year)}>
-          {Object.entries(catalog.feeds).map(([id, name]) => <option value={id} key={id}>{name}</option>)}
-        </select></label>
-        <label>Archive service year <select aria-label="Archive service year" value={year} onChange={event => choose(feed, Number(event.target.value))}>
-          {[...new Set(catalog.groups.map(item => item.year))].map(item => <option key={item}>{item}</option>)}
-        </select></label>
+    <div className="page-heading analysis-heading"><div>
+      <h1>Claim queue</h1>
+      <p>Synthetic hospital billing, clearinghouse, and practice management feeds · Service years 2023–2025</p>
+    </div><button className="primary" onClick={back}>Open guided claim queue</button></div>
+    {!catalog ? <p role={failed ? 'alert' : 'status'}>{failed || 'Loading archive catalogue…'}</p> : <>
+      <div className="stats" role="group" aria-label="Full archive totals">
+        <div className="stat"><div><span>Claim lines</span><strong>{number.format(catalog.lines)}</strong><small>Across all feeds and years</small></div></div>
+        <div className="stat"><div><span>High-priority lines</span><strong>{number.format(catalog.high_priority)}</strong><small>Coverage evidence flagged</small></div></div>
+        <div className="stat"><div><span>Reviews saved</span><strong>{number.format(reviewsSaved)}</strong><small>Guided reviews in this browser</small></div></div>
       </div>
-      <div className="queue-pagination" role="group" aria-label="Archive pagination">
-        <span aria-live="polite">Page {number.format(page)} of {number.format(totalPages)} · {number.format(group?.lines ?? 0)} lines in this feed and year</span>
-        <div>
-          <button className="text-button" onClick={() => changePage(page - 1)} disabled={page <= 1}>Previous archive page</button>
-          <button className="text-button" onClick={() => changePage(page + 1)} disabled={page >= totalPages}>Next archive page</button>
+      <section className="panel section" aria-label="Claim archive">
+        <h2>{number.format(catalog.lines)} archive lines</h2>
+        <p>{number.format(catalog.claims)} distinct claims across three fictional feeds. Review priority is based on evidence flags.</p>
+        <div className="guide-actions archive-controls">
+          <label>Source feed <select aria-label="Source feed" value={feed} onChange={event => choose(event.target.value, year)}>
+            {Object.entries(catalog.feeds).map(([id, name]) => <option value={id} key={id}>{name}</option>)}
+          </select></label>
+          <label>Archive service year <select aria-label="Archive service year" value={year} onChange={event => choose(feed, Number(event.target.value))}>
+            {[...new Set(catalog.groups.map(item => item.year))].map(item => <option key={item}>{item}</option>)}
+          </select></label>
         </div>
-      </div>
-      <form className="archive-jump" onSubmit={event => {event.preventDefault(); if (jump) changePage(Number(jump))}}>
-        <label>Go to page <input type="number" min={1} max={totalPages} required value={jump} onChange={event => setJump(event.target.value)}/></label>
-        <button className="text-button">Go</button>
-      </form>
-      {failed === path && failed ? <p role="alert">Could not load this archive page. <button className="text-button" onClick={() => {setFailed(''); setRetry(value => value + 1)}}>Retry</button></p> :
-        !rows ? <p role="status">Loading archive page…</p> :
-          <div className="scroll"><table>
-            <thead><tr><th>Line ID</th><th>Claim ID</th><th>Service date</th><th>Procedure</th><th>Payer</th><th>Review priority</th><th>Recorded status</th><th>Payer reason</th></tr></thead>
-            <tbody>{rows.map(([line, claim, service, payer, procedure, status, reason, priority]) =>
-              <tr key={line}><td>LINE-{line.padStart(7, '0')}</td><td>CLM-{claim.padStart(6, '0')}</td>
-                <td>{service}</td><td>{procedure}</td><td>{catalog.payers[payer]}</td>
-                <td>{Number(priority) >= 4 ? 'High' : Number(priority) > 0 ? 'Flagged' : 'Routine'}</td>
-                <td>{status}</td><td>{reasons[reason] ?? '—'}</td></tr>)}</tbody>
-          </table></div>}
-    </section>}
+        <div className="queue-pagination" role="group" aria-label="Archive pagination">
+          <span aria-live="polite">Page {number.format(page)} of {number.format(totalPages)} · {number.format(group?.lines ?? 0)} lines in this feed and year · {number.format(group?.high_priority ?? 0)} high priority</span>
+          <div>
+            <button className="text-button" onClick={() => changePage(page - 1)} disabled={page <= 1}>Previous archive page</button>
+            <button className="text-button" onClick={() => changePage(page + 1)} disabled={page >= totalPages}>Next archive page</button>
+          </div>
+        </div>
+        <form className="archive-jump" onSubmit={event => {event.preventDefault(); if (jump) changePage(Number(jump))}}>
+          <label>Go to page <input type="number" min={1} max={totalPages} required value={jump} onChange={event => setJump(event.target.value)}/></label>
+          <button className="text-button">Go</button>
+        </form>
+        {failed === path && failed ? <p role="alert">Could not load this archive page. <button className="text-button" onClick={() => {setFailed(''); setRetry(value => value + 1)}}>Retry</button></p> :
+          !rows ? <p role="status">Loading archive page…</p> :
+            <div className="scroll"><table>
+              <thead><tr><th>Line ID</th><th>Claim ID</th><th>Service date</th><th>Procedure</th><th>Payer</th><th>Review priority</th><th>Recorded status</th><th>Payer reason</th></tr></thead>
+              <tbody>{rows.map(([line, claim, service, payer, procedure, status, reason, priority]) =>
+                <tr key={line}><td>LINE-{line.padStart(7, '0')}</td><td>CLM-{claim.padStart(6, '0')}</td>
+                  <td>{service}</td><td>{procedure}</td><td>{catalog.payers[payer]}</td>
+                  <td>{Number(priority) >= 4 ? 'High' : Number(priority) > 0 ? 'Flagged' : 'Routine'}</td>
+                  <td>{status}</td><td>{reasons[reason] ?? '—'}</td></tr>)}</tbody>
+            </table></div>}
+      </section>
+    </>}
   </>
 }

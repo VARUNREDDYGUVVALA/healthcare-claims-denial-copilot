@@ -1,6 +1,6 @@
 # Demo walkthrough
 
-1. Open **Claim queue**, filter to **Pre-submission**, and select **Start guided case**. Check the MRI line's risk score and missing authorization record.
+1. Open **Guided claim queue**, filter to **Pre-submission**, and select **Start guided case**. Check the MRI line's risk score and missing authorization record.
 2. Select **Simulate payer response**. The MRI line is denied for prior authorization, the companion lab line is approved, and the overall claim is partially denied. The cited Northstar imaging policy is **NS-IMG-v2**, effective July 1, 2025.
 3. In **Ask about this claim**, try “Why was this line denied?” or “Which policy applied on the service date?” You can also type your own question, such as “How much was billed and who is the payer?” Answers use the selected line’s records and reflect whether its payer response has been revealed. Select **Use microphone** in a browser that supports speech recognition, allow microphone access, and speak a question. Select **Stop microphone**, edit the transcription as needed, and select **Ask**. The browser may send audio to its speech recognition service. Type your question if voice input is unavailable. Earlier questions are available in the current claim view. The demo gives a fallback when a question requires unavailable data or falls outside its supported topics.
 4. In **Analyst decision**, choose an action, enter an optional note, and select **Save decision**. Reload and reopen the case to see the saved review.

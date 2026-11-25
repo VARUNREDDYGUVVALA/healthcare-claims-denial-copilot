@@ -32,7 +32,7 @@ type Demo = {
   metrics: { model: Score; rules: Score; capacity: number; cutoff: string; holdout_lines: number }
 }
 type Local = { revealed: string[]; decisions: Decision[] }
-const viewLabels = {queue: 'Claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis', archive: 'Claim archive'}
+const viewLabels = {queue: 'Guided claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis', archive: 'Claim queue'}
 type View = keyof typeof viewLabels
 type QueueFilter = 'all' | 'pre-submission' | Outcome
 const queuePageSize = 25
@@ -62,7 +62,8 @@ function App() {
   const [error, setError] = useState('')
   const [storageError, setStorageError] = useState(false)
   const [local, setLocal] = useState<Local>(readLocal)
-  const [view, setView] = useState<View>('queue')
+  const [view, setView] = useState<View>(() =>
+    localApiMode || new URLSearchParams(location.search).get('queue') === 'guided' ? 'queue' : 'archive')
   const [selected, setSelected] = useState('')
   const [search, setSearch] = useState('')
   const [queuePage, setQueuePage] = useState(0)
@@ -107,8 +108,8 @@ function App() {
       <div className="nav-label">Workspace</div>
       <nav aria-label="Main navigation">
         <button className={view === 'batch' ? 'active' : ''} onClick={() => navigate('batch')}><FileCheck2 size={18}/> Batch claim review</button>
-        <button className={view === 'queue' ? 'active' : ''} onClick={() => navigate('queue')}><ClipboardList size={18}/> Claim queue</button>
-        <button className={view === 'archive' ? 'active' : ''} onClick={() => navigate('archive')}><Files size={18}/> Claim archive</button>
+        <button className={view === 'queue' ? 'active' : ''} onClick={() => navigate('queue')}><ClipboardList size={18}/> Guided claim queue</button>
+        <button className={view === 'archive' ? 'active' : ''} onClick={() => navigate('archive')}><Files size={18}/> Claim queue</button>
         <button className={view === 'dashboard' ? 'active' : ''} onClick={() => navigate('dashboard')}><ChartNoAxesCombined size={18}/> Manager dashboard</button>
         <button className={view === 'analytics' ? 'active' : ''} onClick={() => navigate('analytics')}><ChartNoAxesCombined size={18}/> Three-year analysis</button>
         <button className={view === 'unmatched' ? 'active' : ''} onClick={() => navigate('unmatched')}><Files size={18}/> Unmatched responses</button>
@@ -127,7 +128,7 @@ function App() {
             reveal={() => persist({...local, revealed: [...local.revealed, line.claim_id]})}
             save={(action, note) => persist({...local, decisions: [...local.decisions, {id: crypto.randomUUID(), line_id: line.id, action, note}]})}/> :
           <>
-            <div className="page-heading"><div><h1>Claim queue</h1><p>Prioritize claim lines by denial risk and review payer responses.</p></div></div>
+            <div className="page-heading"><div><h1>Guided claim queue</h1><p>Prioritize claim lines by denial risk and review payer responses.</p></div></div>
             <section className="guide">
               <div className="guide-content">
                 <div className="guide-label"><BookOpen size={15}/> Guided walkthrough</div>
@@ -166,7 +167,7 @@ function App() {
               {!queue.length && <p className="empty">No claim lines match your filters.</p>}
             </section>
           </>)}
-        {view === 'archive' && <ArchiveQueue back={() => navigate('queue')}/>}
+        {view === 'archive' && <ArchiveQueue back={() => navigate('queue')} reviewsSaved={local.decisions.length}/>}
         {view === 'analytics' && <ThreeYearAnalysis/>}
         {demo && view === 'batch' && <BatchReview policies={demo.policies}/>}
         {demo && view === 'dashboard' && <Dashboard demo={demo} reviews={local.decisions.length}/>}

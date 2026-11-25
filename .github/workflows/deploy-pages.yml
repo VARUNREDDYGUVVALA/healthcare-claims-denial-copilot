@@ -35,6 +35,6 @@ jobs:
           curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/claims-2023-2025-extra-large.zip" -o /tmp/claims-download.zip
           python -c 'import json,zipfile; z=zipfile.ZipFile("/tmp/claims-download.zip"); assert {"claims.csv","claim_lines.parquet","annual_summary.csv"} <= set(z.namelist()); assert json.loads(z.read("manifest.json"))["counts"]["claim_lines"]==2000000'
           curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/claims-archive/index.json" |
-            python -c 'import json,sys; d=json.load(sys.stdin); assert d["lines"] == 2000000 and len(d["feeds"]) == 3 and len(d["groups"]) == 9'
+            python -c 'import json,sys; d=json.load(sys.stdin); assert d["lines"] == 2000000 and d["high_priority"] > 0 and len(d["feeds"]) == 3 and len(d["groups"]) == 9'
           curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/claims-archive/feed=hospital/service_year=2025/chunk=0/rows_0.csv.gz" -o /tmp/archive-page.csv.gz
           python -c 'import gzip; rows=list(gzip.open("/tmp/archive-page.csv.gz","rt")); assert len(rows)==1000 and all(len(line.rstrip("\n").split("\t"))==8 for line in rows)'

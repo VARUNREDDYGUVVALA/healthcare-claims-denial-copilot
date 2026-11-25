@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 test('reviews a flagged line, saves the decision and compares policy dates', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('./?queue=guided')
   await expect(page.getByText('Single-browser simulation')).toBeVisible()
   await page.getByLabel('Filter by status').selectOption('pre-submission')
   await expect(page.getByRole('row')).toHaveCount(6)
@@ -36,7 +36,7 @@ test('reviews a flagged line, saves the decision and compares policy dates', asy
 })
 
 test('keeps the recorded reason when policy evidence is missing', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('./?queue=guided')
   const demo = await page.request.get('./demo.json').then(response => response.json())
   const line = demo.lines.find((item: { explanation: { policy: unknown } | null }) => item.explanation && !item.explanation.policy)
   await page.getByLabel('Search claim lines').fill(line.id)
@@ -48,7 +48,7 @@ test('keeps the recorded reason when policy evidence is missing', async ({ page 
 })
 
 test('answers sample and typed questions from the selected claim evidence', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('./?queue=guided')
   await page.getByRole('button', { name: 'Start guided case' }).click()
   const answer = page.locator('[aria-live] .question-answer')
   await page.getByRole('button', { name: 'Why was this line denied?' }).click()
@@ -77,7 +77,7 @@ test('answers sample and typed questions from the selected claim evidence', asyn
 })
 
 test('paginates the full queue and searches beyond the current page', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('./?queue=guided')
   const demo = await page.request.get('./demo.json').then(response => response.json())
   expect(demo.lines.length).toBeGreaterThan(4000)
   const line = demo.lines.at(-1)
@@ -108,7 +108,7 @@ test('transcribes a complete spoken question and lets the user submit it', async
     }
     Object.defineProperty(window, 'SpeechRecognition', {value: MockRecognition})
   })
-  await page.goto('./')
+  await page.goto('./?queue=guided')
   await page.getByRole('button', {name: 'Start guided case'}).click()
   await page.getByRole('button', {name: 'Use microphone'}).click()
   await expect(page.getByText('Listening. Speak your question, then stop the microphone.')).toBeVisible()
@@ -127,7 +127,7 @@ test('keeps text questions available when speech recognition is unsupported', as
       Object.defineProperty(window, key, {value: undefined})
     }
   })
-  await page.goto('./')
+  await page.goto('./?queue=guided')
   await page.getByRole('button', {name: 'Start guided case'}).click()
   await expect(page.getByText('Voice input is unavailable in this browser.')).toBeVisible()
   await page.getByLabel('Your question').fill('How much was billed?')
@@ -136,7 +136,7 @@ test('keeps text questions available when speech recognition is unsupported', as
 })
 
 test('Ledger compares policy editions and previews a hypothetical service date', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('./?queue=guided')
   const comparison = page.getByText(/Holdout denials caught/)
   const initial = await comparison.textContent()
   await page.getByRole('slider', {name: 'Daily review capacity'}).press('End')
@@ -228,7 +228,11 @@ test('three-year analysis shows expanded counts and browses service years', asyn
 
 test('claim archive browses actual source and year partitions', async ({ page }) => {
   await page.goto('./')
-  await page.getByRole('button', {name: 'Browse 2 million archive lines by source'}).click()
+  await expect(page.getByRole('heading', {name: 'Claim queue', exact: true})).toBeVisible()
+  const totals = page.getByLabel('Full archive totals')
+  await expect(totals.getByText('2,000,000', {exact: true})).toBeVisible()
+  await expect(totals.getByText('High-priority lines')).toBeVisible()
+  await expect(totals.getByText('43,516', {exact: true})).toBeVisible()
   await expect(page.getByRole('heading', {name: '2,000,000 archive lines'})).toBeVisible()
   await expect(page.getByRole('row')).toHaveCount(26)
   await page.getByRole('combobox', {name: 'Source feed', exact: true}).selectOption('clearinghouse')
