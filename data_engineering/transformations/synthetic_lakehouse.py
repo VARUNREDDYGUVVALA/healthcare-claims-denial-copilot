@@ -20,6 +20,7 @@ PRESETS = {
     "small": Preset(1_250, 250, 12),
     "medium": Preset(25_000, 5_000, 24),
     "large": Preset(250_000, 50_000, 36),
+    "extra-large": Preset(500_000, 100_000, 36),
 }
 START = date(2023, 1, 1)
 LINES_PER_CLAIM = 4

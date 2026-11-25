@@ -19,6 +19,18 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: apps/frontend/package-lock.json
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Build the downloadable dataset and verify the dashboard summary
+        working-directory: .
+        run: |
+          python -m pip install -r requirements.txt
+          python -m scripts.export_three_year_analysis --preset extra-large --detail-format parquet \
+            --output apps/frontend/public/claims-2023-2025-extra-large.zip \
+            --summary-output apps/frontend/public/three-year-analysis.json
+          git diff --exit-code -- apps/frontend/public/three-year-analysis.json
       - run: npm ci
       - run: npm run check
       - run: npm run build

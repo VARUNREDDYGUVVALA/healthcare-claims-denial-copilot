@@ -44,3 +44,17 @@ ORDER BY recorded_status;
 ```
 
 GitHub Actions generates all three presets and attaches their manifests. Parquet snapshots stay in ignored local artifacts.
+
+## Three-year analysis in Ledger
+
+Open **Three-year analysis** in Ledger to review annual outcomes, browse all 36 months, and compare denial reasons by service year. The extra-large preset extends the three-year dataset to 500,000 distinct claims, 2,000,000 claim lines, and 100,000 fictional members. The public app fetches a summary JSON for this view. The full downloadable ZIP contains a claim-level CSV, a line-level Parquet file, aggregate CSVs, and the source manifest. Pending lines are excluded from the denial-rate denominator.
+
+Regenerate the summary and archive from the repository root:
+
+```bash
+python -m scripts.export_three_year_analysis --preset extra-large --detail-format parquet \
+  --output apps/frontend/public/claims-2023-2025-extra-large.zip \
+  --summary-output apps/frontend/public/three-year-analysis.json
+```
+
+The ZIP stays out of Git. The Pages workflow generates it, verifies the committed summary, and validates the published download.

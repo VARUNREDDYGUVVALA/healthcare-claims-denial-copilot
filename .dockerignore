@@ -9,3 +9,5 @@ apps/frontend/test-results
 apps/frontend/playwright-report
 **/.env
 **/.env.*
+
+apps/frontend/public/claims-2023-2025-extra-large.zip

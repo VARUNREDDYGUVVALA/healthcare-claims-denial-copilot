@@ -30,3 +30,7 @@ jobs:
             python -c 'import json,sys; d=json.load(sys.stdin); assert any(x["id"]=="CLM-GUIDE-1" for x in d["lines"])'
           curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/model-governance.json" |
             python -c 'import json,sys; d=json.load(sys.stdin); assert "logistic" in d["test"] and len(d["dataset_sha256"]) == 64'
+          curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/three-year-analysis.json" |
+            python -c 'import json,sys; d=json.load(sys.stdin); assert (d["claims"], d["claim_lines"], len(d["monthly_summary"])) == (500000,2000000,36)'
+          curl --fail --silent --show-error --retry 8 --retry-all-errors "${PAGE_URL%/}/claims-2023-2025-extra-large.zip" -o /tmp/claims-download.zip
+          python -c 'import json,zipfile; z=zipfile.ZipFile("/tmp/claims-download.zip"); assert {"claims.csv","claim_lines.parquet","annual_summary.csv"} <= set(z.namelist()); assert json.loads(z.read("manifest.json"))["counts"]["claim_lines"]==2000000'

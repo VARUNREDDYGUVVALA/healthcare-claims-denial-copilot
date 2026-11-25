@@ -211,3 +211,17 @@ test('Model governance separates validation recommendations from the frozen-test
   await expect(governance.getByRole('row', {name: /Gradient boosting/})).toContainText('0.7885')
   await expect(governance.getByRole('link', {name: 'Download evaluation report'})).toHaveAttribute('href', './model-governance.json')
 })
+
+test('three-year analysis shows expanded counts and browses service years', async ({ page }) => {
+  await page.goto('./')
+  await page.getByRole('button', {name: 'Three-year analysis'}).click()
+  await expect(page.getByRole('heading', {name: 'Three-year analysis'})).toBeVisible()
+  await expect(page.getByText('500,000', {exact: true})).toBeVisible()
+  await expect(page.getByText('2,000,000', {exact: true})).toBeVisible()
+  await expect(page.getByRole('row', {name: /^2025/})).toContainText('9.06%')
+  await expect(page.getByRole('list', {name: 'Denial rates by month in 2025'}).getByRole('listitem')).toHaveCount(12)
+  await page.getByLabel('Service year').selectOption('2023')
+  await expect(page.getByRole('list', {name: 'Denial rates by month in 2023'})).toContainText('Jan 2023')
+  await expect(page.getByRole('heading', {name: 'Denied lines by reason · 2023'})).toBeVisible()
+  await expect(page.getByRole('link', {name: 'Download full dataset'})).toHaveAttribute('href', /claims-2023-2025-extra-large\.zip$/)
+})

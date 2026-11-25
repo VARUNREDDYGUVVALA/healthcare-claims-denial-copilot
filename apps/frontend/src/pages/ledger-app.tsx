@@ -4,6 +4,7 @@ import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCom
 import { BatchReview } from '../components/batch'
 import type { BatchPolicy } from '../components/batch'
 import { Investigation } from '../components/investigation'
+import { ThreeYearAnalysis } from '../components/three-year-analysis'
 import { ModelGovernance } from '../components/model-governance'
 import { VoiceQuestion } from '../components/voice-question'
 import { daysBetween, ManagerLedger, PolicyRuler, rankDaily } from '../components/ledger'
@@ -30,7 +31,7 @@ type Demo = {
   metrics: { model: Score; rules: Score; capacity: number; cutoff: string; holdout_lines: number }
 }
 type Local = { revealed: string[]; decisions: Decision[] }
-const viewLabels = {queue: 'Claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review'}
+const viewLabels = {queue: 'Claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis'}
 type View = keyof typeof viewLabels
 type QueueFilter = 'all' | 'pre-submission' | Outcome
 const queuePageSize = 25
@@ -107,6 +108,7 @@ function App() {
         <button className={view === 'batch' ? 'active' : ''} onClick={() => navigate('batch')}><FileCheck2 size={18}/> Batch claim review</button>
         <button className={view === 'queue' ? 'active' : ''} onClick={() => navigate('queue')}><ClipboardList size={18}/> Claim queue</button>
         <button className={view === 'dashboard' ? 'active' : ''} onClick={() => navigate('dashboard')}><ChartNoAxesCombined size={18}/> Manager dashboard</button>
+        <button className={view === 'analytics' ? 'active' : ''} onClick={() => navigate('analytics')}><ChartNoAxesCombined size={18}/> Three-year analysis</button>
         <button className={view === 'unmatched' ? 'active' : ''} onClick={() => navigate('unmatched')}><Files size={18}/> Unmatched responses</button>
       </nav>
       <div className="sidebar-bottom"><FlaskConical size={17}/><div>Portfolio demo<small>Synthetic data only</small></div></div>
@@ -162,6 +164,7 @@ function App() {
               {!queue.length && <p className="empty">No claim lines match your filters.</p>}
             </section>
           </>)}
+        {view === 'analytics' && <ThreeYearAnalysis/>}
         {demo && view === 'batch' && <BatchReview policies={demo.policies}/>}
         {demo && view === 'dashboard' && <Dashboard demo={demo} reviews={local.decisions.length}/>}
         {demo && view === 'dashboard' && <ManagerLedger lines={lines} days={daily} reviewed={[...demo.decisions, ...local.decisions]} capacity={capacity} unmatched={demo.unmatched.length}/>}
