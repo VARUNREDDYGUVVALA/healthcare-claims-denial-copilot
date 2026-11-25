@@ -199,3 +199,7 @@ From the repository root, run `make data`, `make train`, and `make evaluate` for
 ## Model governance experiment
 
 Open **Manager dashboard → Model governance** to compare logistic regression, random forest, histogram gradient boosting, and the rules baseline. The report separates validation selection from release gates on frozen test and includes calibration, payer and procedure slices, and feature drift. [Experiment design and measured results](docs/model_governance.md)
+
+## Synthetic data at scale
+
+Build a validated local Parquet lakehouse with `python -m scripts.generate_lakehouse --preset large`. The large preset generates **1,000,000 claim lines**, **250,000 claims**, and **50,000 fictional members** over **36 service months**. Small and medium presets use the same schema. [Presets, tables, and reproduced counts](docs/synthetic_lakehouse.md)
