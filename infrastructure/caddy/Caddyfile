@@ -1,0 +1,22 @@
+{$COPILOT_HOST} {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+	}
+
+	@screening path /api/screening /api/screening/capabilities
+	handle @screening {
+		header Cache-Control "no-store"
+		reverse_proxy copilot:8000
+	}
+
+	@private path /api /api/* /docs /docs/* /redoc /openapi.json /health
+	handle @private {
+		respond 404
+	}
+
+	handle {
+		reverse_proxy copilot:8000
+	}
+}

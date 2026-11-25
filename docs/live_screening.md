@@ -41,3 +41,18 @@ Use the payer’s applicable programme, contract, policy version and source URL 
 `GET /api/screening/capabilities` reports whether role authentication is configured. `POST /api/screening` requires a valid bearer token. The OpenAPI schema is at `/docs` on the API host.
 
 Before accepting customer claim information on a public site, replace shared role tokens with individual identities, verify policy sources and payer access, and establish data handling, audit, retention, and hosting controls. This repository provides the local workflow and a static portfolio site.
+
+## Host a screening pilot over HTTPS
+
+The Compose overlay uses Caddy for automatic TLS and exposes the web UI and screening routes through one origin. Other API routes, including the analyst and supervisor workflow, stay behind the proxy. Use this setup with fictional claim inputs while preparing customer access.
+
+1. On a Linux host with Docker and Docker Compose v2.24.4 or later, clone the repository. Point a DNS hostname at that host and allow inbound TCP 80 and 443.
+2. Copy `.env.example` to `.env`. Set the two distinct role tokens using independent `openssl rand -hex 32` outputs, add `COPILOT_HOST=claims.example.org` with your hostname, and run `chmod 600 .env`.
+3. Start both services from the repository root:
+
+   ```sh
+   docker compose -f docker-compose.yml -f compose.https.yml up --build -d --wait --wait-timeout 300
+   ```
+4. Open `https://claims.example.org/` and select **Live claim screening**. Confirm the form connects and that changing the sample authorization evidence changes the recommendation. Confirm `/api/screening/capabilities` returns JSON and a request to `/api/screening` without a bearer token receives HTTP 401.
+
+Keep the Caddy data volume across restarts to retain certificates. Use `docker compose -f docker-compose.yml -f compose.https.yml logs proxy copilot` to check startup or certificate issues.

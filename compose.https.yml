@@ -1,0 +1,24 @@
+services:
+  copilot:
+    ports: !reset []
+    restart: unless-stopped
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      copilot:
+        condition: service_healthy
+    environment:
+      COPILOT_HOST: "${COPILOT_HOST:?Set COPILOT_HOST to the DNS hostname}"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./infrastructure/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  caddy-data:
+  caddy-config:
