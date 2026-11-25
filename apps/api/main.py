@@ -17,6 +17,7 @@ from machine_learning.training.pipeline import ARTIFACTS, ROOT
 from machine_learning.feature_engineering.claims import claim_lines, features
 from generative_ai.retrieval.policies import explain
 from apps.api.routes.investigations import router as investigation_router
+from apps.api.routes.screening import router as screening_router
 from apps.api.middleware.auth import protect_legacy_api
 
 app = FastAPI(title="Healthcare Claims Denial Copilot")
@@ -88,6 +89,7 @@ def save_decision(line_id: str, decision: Decision):
         return {"id": key, "line_id": line_id, **decision.model_dump()}
 
 app.include_router(legacy)
+app.include_router(screening_router)
 app.include_router(investigation_router(database))
 
 if os.getenv("COPILOT_SERVE_UI") == "1":

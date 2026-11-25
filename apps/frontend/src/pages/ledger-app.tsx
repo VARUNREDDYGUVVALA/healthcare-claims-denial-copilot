@@ -4,6 +4,7 @@ import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCom
 import { BatchReview } from '../components/batch'
 import type { BatchPolicy } from '../components/batch'
 import { Investigation } from '../components/investigation'
+import { LiveScreening } from '../components/live-screening'
 import { ArchiveQueue } from '../components/archive-queue'
 import { ThreeYearAnalysis } from '../components/three-year-analysis'
 import { ModelGovernance } from '../components/model-governance'
@@ -32,7 +33,7 @@ type Demo = {
   metrics: { model: Score; rules: Score; capacity: number; cutoff: string; holdout_lines: number }
 }
 type Local = { revealed: string[]; decisions: Decision[] }
-const viewLabels = {queue: 'Guided claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis', archive: 'Claim queue'}
+const viewLabels = {queue: 'Guided claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis', archive: 'Claim queue', screening: 'Live claim screening'}
 type View = keyof typeof viewLabels
 type QueueFilter = 'all' | 'pre-submission' | Outcome
 const queuePageSize = 25
@@ -107,6 +108,7 @@ function App() {
       <div className="workspace"><div className="workspace-icon"><Layers3 size={16}/></div><div>Willow Creek Health<small>Fictional provider</small></div></div>
       <div className="nav-label">Workspace</div>
       <nav aria-label="Main navigation">
+        <button className={view === 'screening' ? 'active' : ''} onClick={() => navigate('screening')}><FileCheck2 size={18}/> Live claim screening</button>
         <button className={view === 'batch' ? 'active' : ''} onClick={() => navigate('batch')}><FileCheck2 size={18}/> Batch claim review</button>
         <button className={view === 'queue' ? 'active' : ''} onClick={() => navigate('queue')}><ClipboardList size={18}/> Guided claim queue</button>
         <button className={view === 'archive' ? 'active' : ''} onClick={() => navigate('archive')}><Files size={18}/> Claim queue</button>
@@ -167,6 +169,7 @@ function App() {
               {!queue.length && <p className="empty">No claim lines match your filters.</p>}
             </section>
           </>)}
+        {view === 'screening' && <LiveScreening/>}
         {view === 'archive' && <ArchiveQueue back={() => navigate('queue')} reviewsSaved={local.decisions.length}/>}
         {view === 'analytics' && <ThreeYearAnalysis/>}
         {demo && view === 'batch' && <BatchReview policies={demo.policies}/>}

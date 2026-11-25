@@ -243,3 +243,40 @@ test('claim archive browses actual source and year partitions', async ({ page })
   await expect(page.getByRole('group', {name: 'Archive pagination'})).toContainText('Page 41')
   await expect(page.getByRole('row')).toHaveCount(26)
 })
+
+test('live claim entry sends the supplied line to the authenticated API', async ({ page }) => {
+  await page.route('**/api/screening/capabilities', route => route.fulfill({
+    json: {available: true, policy_mode: 'synthetic'},
+  }))
+  await page.route('**/api/screening', async route => {
+    expect(route.request().headers().authorization).toBe('Bearer sample-token')
+    expect(route.request().postDataJSON()).toMatchObject({
+      payer_code: 'NORTHSTAR', plan_code: 'DEMO', procedure_code: 'IMG-01',
+      service_date: '2026-03-30', units: 2, authorization_present: 'no', authorization_date: null,
+    })
+    await route.fulfill({json: {
+      recommendation: 'correct_before_submission',
+      evaluated_at: '2026-11-25T15:00:00Z', policy_mode: 'synthetic',
+      issues: [{code: 'AUTH_ABSENT', severity: 'correct', message: 'Authorization is required.'}],
+      matched_policy: {policy_id: 'NS-IMG-2026-v1', effective_start: '2026-01-01', effective_end: '2026-04-01', source_url: null},
+    }})
+  })
+  await page.goto('./')
+  await page.getByRole('button', {name: 'Live claim screening'}).click()
+  await page.getByLabel('API access token').fill('sample-token')
+  await page.getByRole('combobox', {name: 'Authorization present'}).selectOption('no')
+  await page.getByLabel('Units').fill('2')
+  await page.getByLabel('Units').press('Enter')
+  const result = page.getByRole('region', {name: 'Screening recommendation'})
+  await expect(result).toContainText('Correct before submission')
+  await expect(result).toContainText('Authorization is required')
+  await expect(result).toContainText('NS-IMG-2026-v1')
+})
+
+test('static screening explains that the live API is required', async ({ page }) => {
+  await page.route('**/api/screening/capabilities', route => route.fulfill({status: 404}))
+  await page.goto('./')
+  await page.getByRole('button', {name: 'Live claim screening'}).click()
+  await expect(page.getByRole('heading', {name: 'A running API is required'})).toBeVisible()
+  await expect(page.getByLabel('API access token')).toHaveCount(0)
+})

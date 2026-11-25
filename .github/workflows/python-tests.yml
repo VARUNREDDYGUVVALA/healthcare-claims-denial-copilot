@@ -36,6 +36,10 @@ jobs:
             -H "Authorization: Bearer $COPILOT_ANALYST_TOKEN" -H 'Content-Type: application/json' \
             --data '{"line_id":"CLM-LEDGER-1"}' |
             python3 -c 'import json,sys; run=json.load(sys.stdin); assert run["status"]=="awaiting_review"; assert run["policy"]["id"]=="NS-IMG-2026-v1"'
+          curl --fail --silent --show-error http://127.0.0.1:8000/api/screening \
+            -H "Authorization: Bearer $COPILOT_ANALYST_TOKEN" -H 'Content-Type: application/json' \
+            --data '{"payer_code":"NORTHSTAR","plan_code":"DEMO","procedure_code":"IMG-01","service_date":"2026-03-30","units":1,"coverage_active":"yes","authorization_present":"no","duplicate_confirmed":"no"}' |
+            python3 -c 'import json,sys; result=json.load(sys.stdin); assert result["recommendation"]=="correct_before_submission"; assert result["issues"][0]["code"]=="AUTH_ABSENT"'
       - name: Show container logs on failure
         if: failure()
         run: docker compose logs --no-color

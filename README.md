@@ -206,3 +206,7 @@ Build a validated local Parquet lakehouse with `python -m scripts.generate_lakeh
 
 For the full **500,000-claim, 2-million-line** extension, open **Three-year analysis** in the live demo. It includes a year selector, monthly denial rates, and a downloadable dataset. [Archive format and reproducible export](docs/synthetic_lakehouse.md#three-year-analysis-in-ledger)
 The homepage **Claim queue** browses the 2 million lines by fictional source feed and service year.
+
+## Live claim screening
+
+Run the full-stack app to enter a claim line and receive a live policy-based screening recommendation. The service supports a local versioned policy catalogue and reports missing or conflicting evidence for analyst review. GitHub Pages provides the static walkthrough and setup link. [Run the app and configure the policy catalogue](docs/live_screening.md)
