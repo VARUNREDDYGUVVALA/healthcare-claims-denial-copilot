@@ -33,4 +33,4 @@ RUN --mount=type=secret,id=claims_build_ca \
 USER copilot
 ENV COPILOT_SERVE_UI=1 PYTHONUNBUFFERED=1
 EXPOSE 8000
-CMD ["sh", "-ec", "python -m scripts.export_demo && cp apps/frontend/public/demo.json apps/frontend/dist/demo.json && exec uvicorn apps.api.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-ec", "python -m scripts.export_demo && cp apps/frontend/public/demo.json apps/frontend/dist/demo.json && (test -f apps/frontend/dist/claims-archive/index.json || python -m scripts.export_archive_queue --output apps/frontend/dist/claims-archive) && exec uvicorn apps.api.main:app --host 0.0.0.0 --port 8000"]

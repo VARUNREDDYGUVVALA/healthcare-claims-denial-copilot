@@ -58,3 +58,9 @@ python -m scripts.export_three_year_analysis --preset extra-large --detail-forma
 ```
 
 The ZIP stays out of Git. The Pages workflow generates it, verifies the committed summary, and validates the published download.
+
+### Source feeds in the Claim archive
+
+Open **Claim archive**, or choose **Browse 2 million archive lines by source** from the guided queue. Select hospital billing, clearinghouse, or practice management and a 2023–2025 service year. All rows are browseable in their source partition, with 25 lines per page and a page jump. The browser fetches one compressed 1,000-line shard at a time. The three fictional feeds are assigned by provider ID within one synthetic generator (1–34 hospital, 35–67 clearinghouse, 68–100 practice). These are simulated sources rather than live data integrations. Each archived line is ranked by the coverage, duplicate, and imaging authorization flags available before submission. The guided queue still uses its evaluated model scores.
+
+**Three-year analysis** shows the same feed totals by service year. The downloadable dataset includes `source_feed` in both detail files and `source_year_summary.csv`. For local Vite development, generate the archive once from the repository root with `python -m scripts.export_archive_queue`. Docker Compose generates it on startup and Pages builds it in CI.

@@ -4,6 +4,7 @@ import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCom
 import { BatchReview } from '../components/batch'
 import type { BatchPolicy } from '../components/batch'
 import { Investigation } from '../components/investigation'
+import { ArchiveQueue } from '../components/archive-queue'
 import { ThreeYearAnalysis } from '../components/three-year-analysis'
 import { ModelGovernance } from '../components/model-governance'
 import { VoiceQuestion } from '../components/voice-question'
@@ -31,7 +32,7 @@ type Demo = {
   metrics: { model: Score; rules: Score; capacity: number; cutoff: string; holdout_lines: number }
 }
 type Local = { revealed: string[]; decisions: Decision[] }
-const viewLabels = {queue: 'Claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis'}
+const viewLabels = {queue: 'Claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis', archive: 'Claim archive'}
 type View = keyof typeof viewLabels
 type QueueFilter = 'all' | 'pre-submission' | Outcome
 const queuePageSize = 25
@@ -107,6 +108,7 @@ function App() {
       <nav aria-label="Main navigation">
         <button className={view === 'batch' ? 'active' : ''} onClick={() => navigate('batch')}><FileCheck2 size={18}/> Batch claim review</button>
         <button className={view === 'queue' ? 'active' : ''} onClick={() => navigate('queue')}><ClipboardList size={18}/> Claim queue</button>
+        <button className={view === 'archive' ? 'active' : ''} onClick={() => navigate('archive')}><Files size={18}/> Claim archive</button>
         <button className={view === 'dashboard' ? 'active' : ''} onClick={() => navigate('dashboard')}><ChartNoAxesCombined size={18}/> Manager dashboard</button>
         <button className={view === 'analytics' ? 'active' : ''} onClick={() => navigate('analytics')}><ChartNoAxesCombined size={18}/> Three-year analysis</button>
         <button className={view === 'unmatched' ? 'active' : ''} onClick={() => navigate('unmatched')}><Files size={18}/> Unmatched responses</button>
@@ -140,7 +142,7 @@ function App() {
               <Stat icon={<FileCheck2 size={19}/>} label="Reviews saved" value={local.decisions.length} detail="In this browser"/>
             </div>
             <section className="panel">
-              <div className="panel-heading"><div><h2>Ranked claim lines</h2><p>{formatCount(queue.length)} of {formatCount(lines.length)} lines</p></div><div className="filters"><label className="search"><Search size={16}/><input aria-label="Search claim lines" placeholder="Search claims" value={search} onChange={e => {setSearch(e.target.value); setQueuePage(0)}} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}/></label><label className="search"><ListFilter size={16}/><select aria-label="Filter by status" value={filter} onChange={e => {setFilter(e.target.value as QueueFilter); setQueuePage(0)}}><option value="all">All statuses</option><option value="pre-submission">Pre-submission</option><option value="denied">Denied</option><option value="approved">Approved</option><option value="pending">Pending</option></select></label></div></div>
+              <div className="panel-heading"><div><h2>Ranked claim lines</h2><button className="text-button" onClick={() => navigate('archive')}>Browse 2 million archive lines by source</button><p>{formatCount(queue.length)} of {formatCount(lines.length)} lines</p></div><div className="filters"><label className="search"><Search size={16}/><input aria-label="Search claim lines" placeholder="Search claims" value={search} onChange={e => {setSearch(e.target.value); setQueuePage(0)}} onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur() }}/></label><label className="search"><ListFilter size={16}/><select aria-label="Filter by status" value={filter} onChange={e => {setFilter(e.target.value as QueueFilter); setQueuePage(0)}}><option value="all">All statuses</option><option value="pre-submission">Pre-submission</option><option value="denied">Denied</option><option value="approved">Approved</option><option value="pending">Pending</option></select></label></div></div>
               <div className="queue-capacity">
                 <label className="ledger-control">Daily review capacity <input type="range" aria-label="Daily review capacity" min={1} max={20} value={capacity} onChange={event => setCapacity(Number(event.target.value))}/> <output>{capacity} lines</output></label>
                 <p aria-live="polite">Holdout denials caught · Model {daily.reduce((sum, day) => sum + day.caught, 0)} · Rules {daily.reduce((sum, day) => sum + day.rulesCaught, 0)}</p>
@@ -164,6 +166,7 @@ function App() {
               {!queue.length && <p className="empty">No claim lines match your filters.</p>}
             </section>
           </>)}
+        {view === 'archive' && <ArchiveQueue back={() => navigate('queue')}/>}
         {view === 'analytics' && <ThreeYearAnalysis/>}
         {demo && view === 'batch' && <BatchReview policies={demo.policies}/>}
         {demo && view === 'dashboard' && <Dashboard demo={demo} reviews={local.decisions.length}/>}

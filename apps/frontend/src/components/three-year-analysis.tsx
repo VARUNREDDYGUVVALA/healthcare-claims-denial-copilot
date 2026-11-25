@@ -9,6 +9,7 @@ type Annual = SummaryRow & {service_year: number}
 type Monthly = SummaryRow & {service_month: string}
 type Analysis = {
   claims: number; claim_lines: number; members: number; months: number; start: string; end_exclusive: string
+  feeds: Record<string, string>; source_year_summary: (Annual & {source_feed: string})[]
   annual_summary: Annual[]; monthly_summary: Monthly[]
   annual_denial_reasons: {service_year: number; reason_code: string; denied_lines: number; denied_billed_cents: number}[]
 }
@@ -88,6 +89,17 @@ export function ThreeYearAnalysis() {
           <span>{count.format(row.denied_lines)} denied</span>
         </div>)}
       </div>
+    </section>
+    <section className="panel section ledger-manager">
+      <h2>Source feeds · {selectedYear}</h2>
+      <p>Source feeds are fictional provider groups in the same synthetic dataset.</p>
+      <div className="scroll"><table>
+        <thead><tr><th>Feed</th><th>Claims</th><th>Claim lines</th><th>Denied</th><th>Denial rate</th></tr></thead>
+        <tbody>{data.source_year_summary.filter(row => row.service_year === selectedYear).map(row => <tr key={row.source_feed}>
+          <th scope="row">{data.feeds[row.source_feed]}</th><td>{count.format(row.claims)}</td><td>{count.format(row.claim_lines)}</td>
+          <td>{count.format(row.denied_lines)}</td><td>{risk(row.denial_pct_of_finalized)}</td>
+        </tr>)}</tbody>
+      </table></div>
     </section>
     <section className="panel section ledger-manager">
       <h2>Denied lines by reason · {selectedYear}</h2>

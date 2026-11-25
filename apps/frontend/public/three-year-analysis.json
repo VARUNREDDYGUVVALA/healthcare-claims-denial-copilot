@@ -4,6 +4,11 @@
   "claim_lines": 2000000,
   "members": 100000,
   "months": 36,
+  "feeds": {
+    "hospital": "Hospital billing",
+    "clearinghouse": "Clearinghouse",
+    "practice": "Practice management"
+  },
   "start": "2023-01-01",
   "end_exclusive": "2026-01-01",
   "annual_summary": [
@@ -526,6 +531,125 @@
       "reason_code": "ELIG",
       "denied_lines": 28334,
       "denied_billed_cents": 1305966800
+    }
+  ],
+  "source_year_summary": [
+    {
+      "service_year": 2023,
+      "source_feed": "clearinghouse",
+      "claims": 55047,
+      "distinct_members": 46465,
+      "claim_lines": 220188,
+      "approved_lines": 205336,
+      "denied_lines": 10518,
+      "pending_lines": 4334,
+      "denial_pct_of_finalized": 4.87,
+      "billed_cents": 10119760200,
+      "paid_cents": 6924592640
+    },
+    {
+      "service_year": 2023,
+      "source_feed": "hospital",
+      "claims": 56838,
+      "distinct_members": 47845,
+      "claim_lines": 227352,
+      "approved_lines": 211587,
+      "denied_lines": 11088,
+      "pending_lines": 4677,
+      "denial_pct_of_finalized": 4.98,
+      "billed_cents": 10446724100,
+      "paid_cents": 7124979600
+    },
+    {
+      "service_year": 2023,
+      "source_feed": "practice",
+      "claims": 54629,
+      "distinct_members": 46286,
+      "claim_lines": 218516,
+      "approved_lines": 203215,
+      "denied_lines": 10977,
+      "pending_lines": 4324,
+      "denial_pct_of_finalized": 5.12,
+      "billed_cents": 10041062600,
+      "paid_cents": 6819374080
+    },
+    {
+      "service_year": 2024,
+      "source_feed": "clearinghouse",
+      "claims": 55209,
+      "distinct_members": 46716,
+      "claim_lines": 220836,
+      "approved_lines": 201289,
+      "denied_lines": 15236,
+      "pending_lines": 4311,
+      "denial_pct_of_finalized": 7.04,
+      "billed_cents": 10147213900,
+      "paid_cents": 6777796480
+    },
+    {
+      "service_year": 2024,
+      "source_feed": "hospital",
+      "claims": 56650,
+      "distinct_members": 47699,
+      "claim_lines": 226600,
+      "approved_lines": 206590,
+      "denied_lines": 15498,
+      "pending_lines": 4512,
+      "denial_pct_of_finalized": 6.98,
+      "billed_cents": 10413835800,
+      "paid_cents": 6959595680
+    },
+    {
+      "service_year": 2024,
+      "source_feed": "practice",
+      "claims": 55110,
+      "distinct_members": 46537,
+      "claim_lines": 220440,
+      "approved_lines": 200625,
+      "denied_lines": 15399,
+      "pending_lines": 4416,
+      "denial_pct_of_finalized": 7.13,
+      "billed_cents": 10130098900,
+      "paid_cents": 6750156800
+    },
+    {
+      "service_year": 2025,
+      "source_feed": "clearinghouse",
+      "claims": 55103,
+      "distinct_members": 46640,
+      "claim_lines": 220412,
+      "approved_lines": 196543,
+      "denied_lines": 19503,
+      "pending_lines": 4366,
+      "denial_pct_of_finalized": 9.03,
+      "billed_cents": 10124644600,
+      "paid_cents": 6625329600
+    },
+    {
+      "service_year": 2025,
+      "source_feed": "hospital",
+      "claims": 56698,
+      "distinct_members": 47726,
+      "claim_lines": 226792,
+      "approved_lines": 202111,
+      "denied_lines": 20213,
+      "pending_lines": 4468,
+      "denial_pct_of_finalized": 9.09,
+      "billed_cents": 10420411500,
+      "paid_cents": 6805867360
+    },
+    {
+      "service_year": 2025,
+      "source_feed": "practice",
+      "claims": 54716,
+      "distinct_members": 46410,
+      "claim_lines": 218864,
+      "approved_lines": 194977,
+      "denied_lines": 19424,
+      "pending_lines": 4463,
+      "denial_pct_of_finalized": 9.06,
+      "billed_cents": 10057397800,
+      "paid_cents": 6575761840
     }
   ]
 }

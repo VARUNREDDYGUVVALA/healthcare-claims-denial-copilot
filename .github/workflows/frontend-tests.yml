@@ -31,6 +31,7 @@ jobs:
             --output apps/frontend/public/claims-2023-2025-extra-large.zip \
             --summary-output apps/frontend/public/three-year-analysis.json
           git diff --exit-code -- apps/frontend/public/three-year-analysis.json
+          python -m scripts.export_archive_queue
       - run: npm ci
       - run: npm run check
       - run: npm run build

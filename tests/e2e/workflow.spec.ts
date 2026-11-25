@@ -225,3 +225,17 @@ test('three-year analysis shows expanded counts and browses service years', asyn
   await expect(page.getByRole('heading', {name: 'Denied lines by reason · 2023'})).toBeVisible()
   await expect(page.getByRole('link', {name: 'Download full dataset'})).toHaveAttribute('href', /claims-2023-2025-extra-large\.zip$/)
 })
+
+test('claim archive browses actual source and year partitions', async ({ page }) => {
+  await page.goto('./')
+  await page.getByRole('button', {name: 'Browse 2 million archive lines by source'}).click()
+  await expect(page.getByRole('heading', {name: '2,000,000 archive lines'})).toBeVisible()
+  await expect(page.getByRole('row')).toHaveCount(26)
+  await page.getByRole('combobox', {name: 'Source feed', exact: true}).selectOption('clearinghouse')
+  await page.getByLabel('Archive service year').selectOption('2023')
+  await expect(page.getByRole('row').nth(1)).toContainText('2023-')
+  await page.getByLabel('Go to page').fill('41')
+  await page.getByLabel('Go to page').press('Enter')
+  await expect(page.getByRole('group', {name: 'Archive pagination'})).toContainText('Page 41')
+  await expect(page.getByRole('row')).toHaveCount(26)
+})

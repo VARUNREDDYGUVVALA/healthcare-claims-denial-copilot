@@ -205,3 +205,4 @@ Open **Manager dashboard → Model governance** to compare logistic regression, 
 Build a validated local Parquet lakehouse with `python -m scripts.generate_lakehouse --preset large`. The large preset generates **1,000,000 claim lines**, **250,000 claims**, and **50,000 fictional members** over **36 service months**. Small and medium presets use the same schema. [Presets, tables, and reproduced counts](docs/synthetic_lakehouse.md)
 
 For the full **500,000-claim, 2-million-line** extension, open **Three-year analysis** in the live demo. It includes a year selector, monthly denial rates, and a downloadable dataset. [Archive format and reproducible export](docs/synthetic_lakehouse.md#three-year-analysis-in-ledger)
+ Open **Claim archive** to browse the 2 million lines by fictional source feed and service year.

@@ -11,3 +11,4 @@ apps/frontend/playwright-report
 **/.env.*
 
 apps/frontend/public/claims-2023-2025-extra-large.zip
+apps/frontend/public/claims-archive
