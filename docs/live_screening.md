@@ -56,3 +56,25 @@ The Compose overlay uses Caddy for automatic TLS and exposes the web UI and scre
 4. Open `https://claims.example.org/` and select **Live claim screening**. Confirm the form connects and that changing the sample authorization evidence changes the recommendation. Confirm `/api/screening/capabilities` returns JSON and a request to `/api/screening` without a bearer token receives HTTP 401.
 
 Keep the Caddy data volume across restarts to retain certificates. Use `docker compose -f docker-compose.yml -f compose.https.yml logs proxy copilot` to check startup or certificate issues.
+
+## Enable the three workspaces
+
+The account workspace is an opt-in, single-organization pilot. Use fictional inputs and separate accounts for each participant. Set `COPILOT_WORKSPACE_DB=/app/artifacts/workspace.sqlite3` in the Compose `.env` file and restart the services. The SQLite database lives in the persistent artifacts volume. Back it up alongside your other application data.
+
+Provision an initial manager and a customer from a trusted server terminal. The command prompts for the password and stores a salted hash. Use `-f docker-compose.yml -f compose.https.yml` before `exec` for the HTTPS deployment.
+
+```sh
+docker compose exec copilot python -m scripts.create_workspace_account manager ledger-manager
+docker compose exec copilot python -m scripts.create_workspace_account customer ledger-customer
+```
+
+Open **Claim workspace** in the sidebar.
+
+1. Sign in as the customer and select **Analyze claim line**. Read the screening recommendation and matched policy, then select **Request analyst review** to save a case in **Your submissions**.
+2. Sign in as the manager, activate an analyst account for a verified staff member, then open the case and assign it. The dashboard shows workload counts by review stage.
+3. Sign in as that analyst. Open the assigned case and inspect the saved input and policy checks. Record a review outcome or escalate the case for the manager to resolve.
+4. Sign in as the customer again and refresh the queue. Open the case to see the decision and status history.
+
+Bearer sessions last eight hours and sign-out revokes the current session. The browser keeps the token in memory. Customers can access their own submissions, analysts can access assigned submissions, and managers can access the organization queue. Assignment, review, and escalation events are saved with their actor and timestamp. Workspace decisions are pre-submission recommendations. The existing fictional payer-response and three-year denial analytics remain in the portfolio demo. The account workspace has no live payer feed.
+
+This pilot shares one organization database and uses manager-provisioned accounts. Customer onboarding still requires an approved hosting and data-handling setup, a managed identity lifecycle, and verified payer policies.

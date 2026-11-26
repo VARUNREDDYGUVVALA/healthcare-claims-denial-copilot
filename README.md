@@ -209,4 +209,6 @@ The homepage **Claim queue** browses the 2 million lines by fictional source fee
 
 ## Live claim screening
 
+The full-stack **Claim workspace** has individual customer, analyst, and manager accounts. Customers can check a line and request a review, managers assign cases, and analysts save or escalate recommendations. [Enable the three workspaces](docs/live_screening.md#enable-the-three-workspaces)
+
 Run the full-stack app to enter a claim line and receive a live policy-based screening recommendation. The service supports a local versioned policy catalogue and reports missing or conflicting evidence for analyst review. GitHub Pages provides the static walkthrough and setup link. [Run the app and configure the policy catalogue](docs/live_screening.md)

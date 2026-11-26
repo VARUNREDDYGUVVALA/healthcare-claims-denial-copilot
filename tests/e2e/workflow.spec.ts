@@ -280,3 +280,11 @@ test('static screening explains that the live API is required', async ({ page })
   await expect(page.getByRole('heading', {name: 'A running API is required'})).toBeVisible()
   await expect(page.getByLabel('API access token')).toHaveCount(0)
 })
+
+test('static claim workspace links to server setup', async ({ page }) => {
+  await page.route('**/api/workspace/capabilities', route => route.fulfill({status: 404}))
+  await page.goto('./')
+  await page.getByRole('button', {name: 'Claim workspace', exact: true}).click()
+  await expect(page.getByRole('heading', {name: 'Connect to the full-stack app'})).toBeVisible()
+  await expect(page.getByRole('link', {name: 'Workspace setup'})).toHaveAttribute('href', /enable-the-three-workspaces$/)
+})

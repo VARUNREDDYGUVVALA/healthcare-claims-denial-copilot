@@ -8,6 +8,7 @@ services:
     environment:
       COPILOT_ANALYST_TOKEN: "${COPILOT_ANALYST_TOKEN:?Set COPILOT_ANALYST_TOKEN}"
       COPILOT_SUPERVISOR_TOKEN: "${COPILOT_SUPERVISOR_TOKEN:?Set COPILOT_SUPERVISOR_TOKEN}"
+      COPILOT_WORKSPACE_DB: "${COPILOT_WORKSPACE_DB:-}"
     volumes:
       - claims-artifacts:/app/artifacts
     healthcheck:

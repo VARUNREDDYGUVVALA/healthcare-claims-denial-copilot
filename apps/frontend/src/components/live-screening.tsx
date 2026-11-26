@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 
 type Capability = {available: boolean; policy_mode: 'synthetic' | 'configured'}
-type Result = {
+export type Result = {
   recommendation: 'ready_for_review' | 'correct_before_submission' | 'needs_review'
   issues: {code: string; severity: 'review' | 'correct'; message: string}[]
   matched_policy: {policy_id: string; effective_start: string; effective_end: string; source_url: string | null} | null
-  evaluated_at: string
+  evaluated_at?: string
   policy_mode: Capability['policy_mode']
 }
 const route = import.meta.env.BASE_URL + 'api/screening'
-const decisions = {
+export const decisions = {
   ready_for_review: 'Ready for analyst review',
   correct_before_submission: 'Correct before submission',
   needs_review: 'Needs manual review',
@@ -44,8 +44,8 @@ export function LiveScreening() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const fields = new FormData(event.currentTarget)
-    const input = Object.fromEntries(fields)
-    const {token, ...claim} = input
+    const token = fields.get('token')
+    fields.delete('token')
     setResult(undefined)
     setError('')
     setBusy(true)
@@ -53,12 +53,7 @@ export function LiveScreening() {
       const response = await fetch(route, {
         method: 'POST',
         headers: {'Content-Type': 'application/json', Authorization: 'Bearer ' + String(token).trim()},
-        body: JSON.stringify({
-          ...claim, payer_code: String(claim.payer_code).trim().toUpperCase(),
-          plan_code: String(claim.plan_code).trim().toUpperCase(),
-          procedure_code: String(claim.procedure_code).trim().toUpperCase(),
-          units: Number(claim.units), authorization_date: claim.authorization_date || null,
-        }),
+        body: JSON.stringify(claimPayload(fields)),
       })
       if (response.status === 401) throw Error('Enter a valid API access token.')
       if (response.status === 422) throw Error('Check the claim fields. An approval date requires authorization marked Yes.')
@@ -89,15 +84,7 @@ export function LiveScreening() {
           <p>{sample ? 'The server is using fictional payer policies.' : 'The server is using an operator-configured policy catalogue.'} Enter claim metadata only. Keep names, member identifiers, and medical notes out of this form.</p>
           <form className="batch-form" onSubmit={submit}>
             <label>API access token<input type="password" name="token" autoComplete="off" required/></label>
-            <label>Payer code<input name="payer_code" defaultValue={sample ? 'NORTHSTAR' : ''} required maxLength={30}/></label>
-            <label>Plan code<input name="plan_code" defaultValue={sample ? 'DEMO' : ''} required maxLength={30}/></label>
-            <label>Procedure code<input name="procedure_code" defaultValue={sample ? 'IMG-01' : ''} required maxLength={30}/></label>
-            <label>Service date<input type="date" name="service_date" defaultValue={sample ? '2026-03-30' : ''} min="1900-01-01" max="2100-12-31" required/></label>
-            <label>Units<input type="number" name="units" min={1} max={9999} defaultValue={1} required/></label>
-            <Evidence name="coverage_active" label="Coverage active on service date"/>
-            <Evidence name="duplicate_confirmed" label="Duplicate confirmed"/>
-            <Evidence name="authorization_present" label="Authorization present"/>
-            <label>Authorization approval date<input type="date" name="authorization_date" min="1900-01-01" max="2100-12-31"/></label>
+            <ClaimFields sample={sample}/>
             <button className="primary" disabled={busy}>{busy ? 'Analyzing…' : 'Analyze claim line'}</button>
           </form>
         </section>
@@ -105,17 +92,47 @@ export function LiveScreening() {
           <h2>Screening recommendation</h2>
           {error && <p className="notice" role="alert">{error}</p>}
           {!result && !error && <p>{busy ? 'Evaluating entered details on the server…' : 'Submit the form to see the policy match and checks.'}</p>}
-          {result && <div aria-live="polite" className="question-answer">
+          {result && <ScreeningResult result={result}/>}
+        </section>
+      </div>}
+  </>
+}
+
+export function ClaimFields({sample}: {sample: boolean}) {
+  return <>
+    <label>Payer code<input name="payer_code" defaultValue={sample ? 'NORTHSTAR' : ''} required maxLength={30}/></label>
+    <label>Plan code<input name="plan_code" defaultValue={sample ? 'DEMO' : ''} required maxLength={30}/></label>
+    <label>Procedure code<input name="procedure_code" defaultValue={sample ? 'IMG-01' : ''} required maxLength={30}/></label>
+    <label>Service date<input type="date" name="service_date" defaultValue={sample ? '2026-03-30' : ''} min="1900-01-01" max="2100-12-31" required/></label>
+    <label>Units<input type="number" name="units" min={1} max={9999} defaultValue={1} required/></label>
+    <Evidence name="coverage_active" label="Coverage active on service date"/>
+    <Evidence name="duplicate_confirmed" label="Duplicate confirmed"/>
+    <Evidence name="authorization_present" label="Authorization present"/>
+    <label>Authorization approval date<input type="date" name="authorization_date" min="1900-01-01" max="2100-12-31"/></label>
+  </>
+}
+
+export function claimPayload(fields: FormData) {
+  const claim = Object.fromEntries(fields)
+  return {
+    ...claim,
+    payer_code: String(claim.payer_code).trim().toUpperCase(),
+    plan_code: String(claim.plan_code).trim().toUpperCase(),
+    procedure_code: String(claim.procedure_code).trim().toUpperCase(),
+    units: Number(claim.units),
+    authorization_date: claim.authorization_date || null,
+  }
+}
+
+export function ScreeningResult({result}: {result: Result}) {
+  return <div aria-live="polite" className="question-answer">
             <h3>{decisions[result.recommendation]}</h3>
-            <p>{result.policy_mode === 'synthetic' ? 'Fictional policy evaluation' : 'Configured policy evaluation'} · {new Date(result.evaluated_at).toLocaleString()}</p>
+            <p>{result.policy_mode === 'synthetic' ? 'Fictional policy evaluation' : 'Configured policy evaluation'}{result.evaluated_at && ' · ' + new Date(result.evaluated_at).toLocaleString()}</p>
             {result.matched_policy && <p>Policy {result.matched_policy.policy_id} · {result.matched_policy.effective_start} to before {result.matched_policy.effective_end}.
               {result.matched_policy.source_url && <> <a className="text-button" href={result.matched_policy.source_url} target="_blank" rel="noreferrer">Open policy source</a></>}
             </p>}
             {result.issues.length ? <ul>{result.issues.map(issue => <li key={issue.code}>{issue.message}</li>)}</ul> :
               <p>The supplied details passed the configured checks.</p>}
             <p>An authorized reviewer makes the final submission decision.</p>
-          </div>}
-        </section>
-      </div>}
-  </>
+          </div>
 }

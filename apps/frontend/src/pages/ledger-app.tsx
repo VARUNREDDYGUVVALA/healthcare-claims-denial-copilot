@@ -4,6 +4,7 @@ import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCom
 import { BatchReview } from '../components/batch'
 import type { BatchPolicy } from '../components/batch'
 import { Investigation } from '../components/investigation'
+import { ClaimWorkspace } from '../components/claim-workspace'
 import { LiveScreening } from '../components/live-screening'
 import { ArchiveQueue } from '../components/archive-queue'
 import { ThreeYearAnalysis } from '../components/three-year-analysis'
@@ -33,7 +34,7 @@ type Demo = {
   metrics: { model: Score; rules: Score; capacity: number; cutoff: string; holdout_lines: number }
 }
 type Local = { revealed: string[]; decisions: Decision[] }
-const viewLabels = {queue: 'Guided claim queue', dashboard: 'Manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis', archive: 'Claim queue', screening: 'Live claim screening'}
+const viewLabels = {cases: 'Claim workspace', queue: 'Guided claim queue', dashboard: 'Demo manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis', archive: 'Claim queue', screening: 'Live claim screening'}
 type View = keyof typeof viewLabels
 type QueueFilter = 'all' | 'pre-submission' | Outcome
 const queuePageSize = 25
@@ -108,21 +109,22 @@ function App() {
       <div className="workspace"><div className="workspace-icon"><Layers3 size={16}/></div><div>Willow Creek Health<small>Fictional provider</small></div></div>
       <div className="nav-label">Workspace</div>
       <nav aria-label="Main navigation">
+        <button className={view === 'cases' ? 'active' : ''} onClick={() => navigate('cases')}><ClipboardList size={18}/> Claim workspace</button>
         <button className={view === 'screening' ? 'active' : ''} onClick={() => navigate('screening')}><FileCheck2 size={18}/> Live claim screening</button>
         <button className={view === 'batch' ? 'active' : ''} onClick={() => navigate('batch')}><FileCheck2 size={18}/> Batch claim review</button>
         <button className={view === 'queue' ? 'active' : ''} onClick={() => navigate('queue')}><ClipboardList size={18}/> Guided claim queue</button>
         <button className={view === 'archive' ? 'active' : ''} onClick={() => navigate('archive')}><Files size={18}/> Claim queue</button>
-        <button className={view === 'dashboard' ? 'active' : ''} onClick={() => navigate('dashboard')}><ChartNoAxesCombined size={18}/> Manager dashboard</button>
+        <button className={view === 'dashboard' ? 'active' : ''} onClick={() => navigate('dashboard')}><ChartNoAxesCombined size={18}/> Demo manager dashboard</button>
         <button className={view === 'analytics' ? 'active' : ''} onClick={() => navigate('analytics')}><ChartNoAxesCombined size={18}/> Three-year analysis</button>
         <button className={view === 'unmatched' ? 'active' : ''} onClick={() => navigate('unmatched')}><Files size={18}/> Unmatched responses</button>
       </nav>
       <div className="sidebar-bottom"><FlaskConical size={17}/><div>Portfolio demo<small>Synthetic data only</small></div></div>
     </aside>
     <div className="content">
-      <header className="topbar"><span>Workspace <ChevronRight size={14}/> <strong>{viewLabels[view]}</strong></span><span className="simulation"><i/> Single-browser simulation</span></header>
+      <header className="topbar"><span>Workspace <ChevronRight size={14}/> <strong>{viewLabels[view]}</strong></span><span className="simulation"><i/> {view === 'cases' ? 'Account workspace' : 'Single-browser simulation'}</span></header>
       <main>
         {storageError && <p className="notice" role="alert">Browser storage is unavailable. Changes will last until this page reloads.</p>}
-        {!demo && <p role={error ? 'alert' : 'status'}>{error || 'Loading claims…'}</p>}
+        {!demo && view !== 'cases' && <p role={error ? 'alert' : 'status'}>{error || 'Loading claims…'}</p>}
         {demo && view === 'queue' && (line ?
           <Detail key={line.id} line={line} status={status(line)} policies={demo.policies}
             decisions={[...demo.decisions, ...local.decisions].filter(item => item.line_id === line.id)}
@@ -169,6 +171,7 @@ function App() {
               {!queue.length && <p className="empty">No claim lines match your filters.</p>}
             </section>
           </>)}
+        {view === 'cases' && <ClaimWorkspace/>}
         {view === 'screening' && <LiveScreening/>}
         {view === 'archive' && <ArchiveQueue back={() => navigate('queue')} reviewsSaved={local.decisions.length}/>}
         {view === 'analytics' && <ThreeYearAnalysis/>}

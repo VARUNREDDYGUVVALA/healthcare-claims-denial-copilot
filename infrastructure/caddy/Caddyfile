@@ -5,8 +5,8 @@
 		Referrer-Policy "no-referrer"
 	}
 
-	@screening path /api/screening /api/screening/capabilities
-	handle @screening {
+	@workspace_api path /api/screening /api/screening/capabilities /api/workspace/*
+	handle @workspace_api {
 		header Cache-Control "no-store"
 		reverse_proxy copilot:8000
 	}
