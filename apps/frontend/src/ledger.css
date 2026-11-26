@@ -97,3 +97,30 @@ summary { color: var(--accent); cursor: pointer; }
 .archive-controls label { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .archive-jump { display: flex; align-items: end; gap: 8px; margin-top: 8px; }
 .archive-jump label { max-width: 9rem; }
+
+.claim-lab { display: grid; gap: 18px; }
+.lab-intro { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 18px; padding: 26px; background: var(--panel); border: 1px solid var(--border); border-top: 3px solid var(--accent); }
+.lab-intro h1 { max-width: 24ch; font-size: clamp(1.9rem, 4vw, 3.05rem); margin: 10px 0; }
+.lab-intro p { max-width: 56ch; color: var(--muted); }
+.lab-intro .lab-kicker { display: flex; align-items: center; gap: 8px; color: var(--accent); }
+.lab-grid { align-items: stretch; }
+.lab-scenarios { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.lab-scenario { background: var(--ink); border: 1px solid var(--border); color: var(--text); padding: 7px 10px; }
+.lab-scenario[aria-pressed="true"] { background: var(--raised); border-color: var(--accent); }
+.lab-result .lab-verdict { font-size: 1.45rem; font-weight: 700; color: var(--accent); }
+.lab-result .lab-verdict[data-recommendation="Recommend denial"] { color: var(--coral); }
+.lab-result .lab-verdict[data-recommendation="Needs review"] { color: var(--amber); }
+.lab-result li { line-height: 1.5; }
+.lab-policy { margin: 15px 0; padding: 12px; border-left: 3px solid var(--accent); background: var(--ink); }
+.lab-policy figcaption { font-weight: 700; }
+.lab-policy span { display: block; color: var(--muted); font-size: .85rem; font-weight: 400; }
+.lab-policy blockquote { margin: 8px 0 0; line-height: 1.5; }
+.lab-context { color: var(--muted); }
+.lab-roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.lab-roles article { padding: 12px; border: 1px solid var(--border); }
+.lab-roles h3 { color: var(--accent); }
+.lab-workflow .text-button { display: inline-flex; align-items: center; gap: 7px; }
+@media (max-width: 620px) {
+  .lab-intro { padding: 16px; }
+  .lab-roles { grid-template-columns: 1fr; }
+}

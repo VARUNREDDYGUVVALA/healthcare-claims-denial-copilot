@@ -2,8 +2,8 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 
 export type BatchPolicy = { id: string; payer: string; procedure: string; starts: string; ends: string; section: string; excerpt: string }
-type Evidence = 'yes' | 'no' | 'unknown'
-type ClaimInput = {
+export type Evidence = 'yes' | 'no' | 'unknown'
+export type ClaimInput = {
   id: string; payer: string; procedure: string; service: string
   eligible: Evidence; duplicate: Evidence; authorization: Evidence; authorizationDate: string
 }
@@ -18,7 +18,7 @@ function isDate(value: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(+date) && isoDate(date) === value
 }
 
-function evaluate(line: ClaimInput, policies: BatchPolicy[]): Result {
+export function evaluate(line: ClaimInput, policies: BatchPolicy[]): Result {
   const matches = policies.filter(policy => policy.payer === line.payer && policy.procedure === line.procedure &&
     policy.starts <= line.service && line.service < policy.ends)
   const denied: string[] = []

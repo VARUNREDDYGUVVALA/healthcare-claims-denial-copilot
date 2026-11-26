@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCombined, ChevronRight, CircleHelp, ClipboardList, FileCheck2, Files, FlaskConical, Layers3, ListFilter, Search } from 'lucide-react'
+import { Activity, ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChartNoAxesCombined, ChevronRight, CircleHelp, ClipboardList, FileCheck2, Files, FlaskConical, Layers3, ListFilter, Search, ShieldCheck } from 'lucide-react'
 import { BatchReview } from '../components/batch'
 import type { BatchPolicy } from '../components/batch'
 import { Investigation } from '../components/investigation'
+import { ClaimLab } from '../components/claim-lab'
 import { ClaimWorkspace } from '../components/claim-workspace'
 import { LiveScreening } from '../components/live-screening'
 import { ArchiveQueue } from '../components/archive-queue'
@@ -34,7 +35,7 @@ type Demo = {
   metrics: { model: Score; rules: Score; capacity: number; cutoff: string; holdout_lines: number }
 }
 type Local = { revealed: string[]; decisions: Decision[] }
-const viewLabels = {cases: 'Claim workspace', queue: 'Guided claim queue', dashboard: 'Demo manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis', archive: 'Claim queue', screening: 'Live claim screening'}
+const viewLabels = {lab: 'Claim check', cases: 'Claim workspace', queue: 'Guided claim queue', dashboard: 'Demo manager dashboard', unmatched: 'Unmatched responses', batch: 'Batch claim review', analytics: 'Three-year analysis', archive: 'Claim queue', screening: 'Live claim screening'}
 type View = keyof typeof viewLabels
 type QueueFilter = 'all' | 'pre-submission' | Outcome
 const queuePageSize = 25
@@ -65,7 +66,7 @@ function App() {
   const [storageError, setStorageError] = useState(false)
   const [local, setLocal] = useState<Local>(readLocal)
   const [view, setView] = useState<View>(() =>
-    localApiMode || new URLSearchParams(location.search).get('queue') === 'guided' ? 'queue' : 'archive')
+    localApiMode || new URLSearchParams(location.search).get('queue') === 'guided' ? 'queue' : new URLSearchParams(location.search).get('queue') === 'archive' ? 'archive' : 'lab')
   const [selected, setSelected] = useState('')
   const [search, setSearch] = useState('')
   const [queuePage, setQueuePage] = useState(0)
@@ -109,6 +110,7 @@ function App() {
       <div className="workspace"><div className="workspace-icon"><Layers3 size={16}/></div><div>Willow Creek Health<small>Fictional provider</small></div></div>
       <div className="nav-label">Workspace</div>
       <nav aria-label="Main navigation">
+        <button className={view === 'lab' ? 'active' : ''} onClick={() => navigate('lab')}><ShieldCheck size={18}/> Claim check</button>
         <button className={view === 'cases' ? 'active' : ''} onClick={() => navigate('cases')}><ClipboardList size={18}/> Claim workspace</button>
         <button className={view === 'screening' ? 'active' : ''} onClick={() => navigate('screening')}><FileCheck2 size={18}/> Live claim screening</button>
         <button className={view === 'batch' ? 'active' : ''} onClick={() => navigate('batch')}><FileCheck2 size={18}/> Batch claim review</button>
@@ -171,6 +173,8 @@ function App() {
               {!queue.length && <p className="empty">No claim lines match your filters.</p>}
             </section>
           </>)}
+        {demo && view === 'lab' && <ClaimLab policies={demo.policies} openGuided={() => open(guide)}
+          openArchive={() => navigate('archive')} openWorkspace={() => navigate('cases')}/>}
         {view === 'cases' && <ClaimWorkspace/>}
         {view === 'screening' && <LiveScreening/>}
         {view === 'archive' && <ArchiveQueue back={() => navigate('queue')} reviewsSaved={local.decisions.length}/>}

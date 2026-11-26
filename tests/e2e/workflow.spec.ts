@@ -227,7 +227,7 @@ test('three-year analysis shows expanded counts and browses service years', asyn
 })
 
 test('claim archive browses actual source and year partitions', async ({ page }) => {
-  await page.goto('./')
+  await page.goto('./?queue=archive')
   await expect(page.getByRole('heading', {name: 'Claim queue', exact: true})).toBeVisible()
   const totals = page.getByLabel('Full archive totals')
   await expect(totals.getByText('2,000,000', {exact: true})).toBeVisible()
@@ -287,4 +287,19 @@ test('static claim workspace links to server setup', async ({ page }) => {
   await page.getByRole('button', {name: 'Claim workspace', exact: true}).click()
   await expect(page.getByRole('heading', {name: 'Connect to the full-stack app'})).toBeVisible()
   await expect(page.getByRole('link', {name: 'Workspace setup'})).toHaveAttribute('href', /enable-the-three-workspaces$/)
+})
+
+test('homepage explains why the same approval date yields different policy results', async ({ page }) => {
+  await page.goto('./')
+  await expect(page.getByRole('heading', {name: 'Check a claim before you submit it'})).toBeVisible()
+  const result = page.getByRole('region', {name: 'Screening recommendation'})
+  await expect(result).toContainText('Ready for review')
+  await expect(result).toContainText('2026-v1')
+  await page.getByRole('button', {name: 'April 1 service'}).click()
+  await expect(result).toContainText('Correct before submission')
+  await expect(result).toContainText('2026-v2')
+  await page.getByLabel('Authorization on file').selectOption('unknown')
+  await expect(result).toContainText('Needs manual review')
+  await page.getByRole('button', {name: 'Open the guided denial case'}).click()
+  await expect(page.getByRole('heading', {name: 'CLM-GUIDE-1', exact: true})).toBeVisible()
 })
